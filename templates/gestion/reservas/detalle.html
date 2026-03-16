@@ -1,0 +1,155 @@
+{% extends "gestion/base.html" %}
+{% block title %}Reserva {{ reserva.numero_reserva }} — PowerRent{% endblock %}
+{% block gestion_content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{% url 'core:gestion_reservas' %}" class="btn btn-outline-secondary btn-sm me-3">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h4 class="mb-0"><i class="bi bi-calendar3 me-2 text-primary"></i>Reserva {{ reserva.numero_reserva }}</h4>
+</div>
+
+<div class="row g-4">
+    <!-- Info de la reserva -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+                <span>Detalles</span>
+                {% if reserva.estado == 'pendiente' %}
+                <span class="badge badge-estado-pendiente fs-6">Pendiente</span>
+                {% elif reserva.estado == 'confirmada' %}
+                <span class="badge badge-estado-confirmada fs-6">Confirmada</span>
+                {% elif reserva.estado == 'en_curso' %}
+                <span class="badge badge-estado-en_curso fs-6">En Curso</span>
+                {% elif reserva.estado == 'completada' %}
+                <span class="badge badge-estado-completada fs-6">Completada</span>
+                {% elif reserva.estado == 'cancelada' %}
+                <span class="badge badge-estado-cancelada fs-6">Cancelada</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="bg-light p-3 rounded">
+                            <div class="text-muted small">Equipo</div>
+                            <div class="fw-bold">{{ reserva.equipo.nombre }}</div>
+                            <div class="text-muted small">{{ reserva.equipo.categoria.nombre }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-light p-3 rounded">
+                            <div class="text-muted small">Cliente</div>
+                            <div class="fw-bold">{{ reserva.cliente.get_full_name|default:reserva.cliente.username }}</div>
+                            <div class="text-muted small">{{ reserva.cliente.email }}</div>
+                            {% if reserva.cliente.telefono %}
+                            <div class="text-muted small"><i class="bi bi-telephone"></i> {{ reserva.cliente.telefono }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-light p-3 rounded">
+                            <div class="text-muted small">Período</div>
+                            <div class="fw-bold">{{ reserva.fecha_inicio|date:"d/m/Y" }} → {{ reserva.fecha_fin|date:"d/m/Y" }}</div>
+                            <div class="text-muted small">{{ reserva.duracion_dias }} días</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-light p-3 rounded">
+                            <div class="text-muted small">Costos</div>
+                            <div class="fw-bold text-success">${{ reserva.costo_alquiler|floatformat:0 }} alquiler</div>
+                            <div class="text-muted small">${{ reserva.deposito_pagado|floatformat:0 }} depósito</div>
+                        </div>
+                    </div>
+                </div>
+                {% if reserva.notas_cliente %}
+                <div class="mt-3">
+                    <div class="text-muted small mb-1">Notas del cliente</div>
+                    <div class="border rounded p-2 bg-white">{{ reserva.notas_cliente }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pagos -->
+        {% if pagos %}
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">Pagos</div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light"><tr><th>N° Trans.</th><th>Tipo</th><th>Método</th><th>Monto</th><th>Estado</th><th>Fecha</th></tr></thead>
+                    <tbody>
+                        {% for pago in pagos %}
+                        <tr>
+                            <td class="small">{{ pago.numero_transaccion }}</td>
+                            <td>{{ pago.get_tipo_pago_display }}</td>
+                            <td>{{ pago.get_metodo_pago_display }}</td>
+                            <td class="fw-semibold">${{ pago.monto|floatformat:0 }}</td>
+                            <td>
+                                {% if pago.estado == 'completado' %}<span class="badge bg-success">Completado</span>
+                                {% elif pago.estado == 'pendiente' %}<span class="badge bg-warning text-dark">Pendiente</span>
+                                {% else %}<span class="badge bg-secondary">{{ pago.get_estado_display }}</span>{% endif %}
+                            </td>
+                            <td class="small">{{ pago.fecha_pago|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Acciones -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header fw-semibold">Acciones</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small">Notas internas (solo admins)</label>
+                        <textarea name="notas_admin" class="form-control form-control-sm" rows="3"
+                                  placeholder="Notas internas...">{{ reserva.notas_admin }}</textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {% if reserva.puede_confirmar %}
+                        <button type="submit" name="accion" value="confirmar" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i> Confirmar Reserva
+                        </button>
+                        {% endif %}
+                        {% if reserva.puede_iniciar %}
+                        <button type="submit" name="accion" value="iniciar" class="btn btn-primary">
+                            <i class="bi bi-play-circle me-1"></i> Iniciar Alquiler
+                        </button>
+                        {% endif %}
+                        {% if reserva.puede_completar %}
+                        <button type="submit" name="accion" value="completar" class="btn btn-secondary">
+                            <i class="bi bi-flag-fill me-1"></i> Marcar Completada
+                        </button>
+                        {% endif %}
+                        {% if reserva.puede_cancelar %}
+                        <button type="submit" name="accion" value="cancelar" class="btn btn-outline-danger"
+                                onclick="return confirm('¿Confirmar cancelación?')">
+                            <i class="bi bi-x-circle me-1"></i> Cancelar Reserva
+                        </button>
+                        {% endif %}
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-save me-1"></i> Guardar Notas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header fw-semibold">Info. de Creación</div>
+            <div class="card-body small">
+                <div class="text-muted">Creada el</div>
+                <div>{{ reserva.created_at|date:"d/m/Y H:i" }}</div>
+                <div class="text-muted mt-2">Última actualización</div>
+                <div>{{ reserva.updated_at|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

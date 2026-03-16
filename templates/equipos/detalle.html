@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% block title %}{{ equipo.nombre }} - PowerRent{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-warning">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'equipos:lista' %}" class="text-warning">Equipos</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'equipos:por_categoria' equipo.categoria.slug %}" class="text-warning">{{ equipo.categoria.nombre }}</a></li>
+            <li class="breadcrumb-item active">{{ equipo.nombre }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-6">
+            {% if equipo.imagen_principal %}
+            <img src="{{ equipo.imagen_principal.url }}" class="img-fluid rounded-3 shadow" alt="{{ equipo.nombre }}">
+            {% else %}
+            <div class="bg-secondary rounded-3 d-flex align-items-center justify-content-center text-white" style="height:350px; font-size:6rem;">🔧</div>
+            {% endif %}
+
+            {% if equipo.imagenes.exists %}
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+                {% for img in equipo.imagenes.all %}
+                <img src="{{ img.imagen.url }}" class="rounded" style="width:80px; height:60px; object-fit:cover;" alt="{{ img.descripcion }}">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <span class="badge {% if equipo.disponible %}bg-success{% else %}bg-secondary{% endif %} mb-2">
+                {{ equipo.get_estado_display }}
+            </span>
+            <h2 class="fw-bold">{{ equipo.nombre }}</h2>
+            <p class="text-muted">{{ equipo.categoria.nombre }} | {{ equipo.marca }} {{ equipo.modelo }}</p>
+            <p>{{ equipo.descripcion }}</p>
+
+            <!-- Precios -->
+            <div class="card bg-light border-0 mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Precios de Alquiler</h6>
+                    <div class="row text-center">
+                        <div class="col">
+                            <div class="fw-bold text-warning fs-5">${{ equipo.precio_por_dia|floatformat:0 }}</div>
+                            <small class="text-muted">Por día</small>
+                        </div>
+                        {% if equipo.precio_por_semana %}
+                        <div class="col">
+                            <div class="fw-bold text-warning fs-5">${{ equipo.precio_por_semana|floatformat:0 }}</div>
+                            <small class="text-muted">Por semana</small>
+                        </div>
+                        {% endif %}
+                        {% if equipo.precio_por_mes %}
+                        <div class="col">
+                            <div class="fw-bold text-warning fs-5">${{ equipo.precio_por_mes|floatformat:0 }}</div>
+                            <small class="text-muted">Por mes</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if equipo.deposito_garantia > 0 %}
+                    <p class="text-muted small mt-2 mb-0">
+                        <i class="bi bi-shield-check"></i> Depósito de garantía: ${{ equipo.deposito_garantia|floatformat:0 }}
+                        (reembolsable)
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Código interno -->
+            <p class="small text-muted">Código: <strong>{{ equipo.codigo_interno }}</strong>
+            {% if equipo.numero_serie %} | Serie: <strong>{{ equipo.numero_serie }}</strong>{% endif %}</p>
+
+            {% if equipo.disponible %}
+                {% if user.is_authenticated %}
+                <a href="{% url 'reservas:crear' equipo.slug %}" class="btn btn-warning btn-lg w-100 fw-bold">
+                    <i class="bi bi-calendar-plus"></i> Reservar Ahora
+                </a>
+                {% else %}
+                <a href="{% url 'usuarios:login' %}" class="btn btn-warning btn-lg w-100 fw-bold">
+                    <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión para reservar
+                </a>
+                {% endif %}
+            {% else %}
+            <button class="btn btn-secondary btn-lg w-100" disabled>No Disponible Actualmente</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Especificaciones técnicas -->
+    {% if equipo.especificaciones %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4 class="fw-bold mb-3">Especificaciones Técnicas</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                        {% for key, value in equipo.especificaciones.items %}
+                        <tr>
+                            <th class="w-25">{{ key }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Calificaciones -->
+    <div class="mt-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="fw-bold mb-0">
+                <i class="bi bi-star-fill text-warning me-2"></i>Calificaciones
+                <small class="text-muted fs-6">({{ calificaciones|length }})</small>
+            </h4>
+            {% if puede_calificar %}
+            <a href="{% url 'equipos:calificar' equipo.slug %}" class="btn btn-warning btn-sm">
+                <i class="bi bi-star me-1"></i> Calificar este equipo
+            </a>
+            {% endif %}
+        </div>
+        {% if calificaciones %}
+        <div class="row g-3">
+            {% for cal in calificaciones %}
+            <div class="col-md-6">
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="fw-semibold small">{{ cal.cliente.get_full_name|default:cal.cliente.username }}</div>
+                            <div>
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= cal.puntuacion %}
+                                <i class="bi bi-star-fill text-warning" style="font-size:.85rem;"></i>
+                                {% else %}
+                                <i class="bi bi-star text-muted" style="font-size:.85rem;"></i>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if cal.comentario %}
+                        <p class="mb-0 small text-muted">{{ cal.comentario }}</p>
+                        {% else %}
+                        <p class="mb-0 small text-muted fst-italic">Sin comentario.</p>
+                        {% endif %}
+                        <div class="text-muted mt-1" style="font-size:.75rem;">{{ cal.created_at|date:"d/m/Y" }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-muted small">
+            Aún no hay calificaciones para este equipo.
+            {% if puede_calificar %}
+            <a href="{% url 'equipos:calificar' equipo.slug %}">¡Sé el primero en calificar!</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Equipos relacionados -->
+    {% if equipos_relacionados %}
+    <div class="mt-5">
+        <h4 class="fw-bold mb-4">Equipos Relacionados</h4>
+        <div class="row g-3">
+            {% for rel in equipos_relacionados %}
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <div class="fs-2">🔧</div>
+                        <h6 class="fw-bold mt-2">{{ rel.nombre }}</h6>
+                        <p class="text-warning fw-bold">${{ rel.precio_por_dia|floatformat:0 }}/día</p>
+                        <a href="{% url 'equipos:detalle' rel.slug %}" class="btn btn-outline-warning btn-sm">Ver</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

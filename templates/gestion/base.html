@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 mb-4">
+            <div class="card sticky-top" style="top:1rem;">
+                <div class="card-header bg-dark text-white py-2">
+                    <small class="fw-bold text-uppercase text-warning">
+                        <i class="bi bi-gear-fill"></i> Gestión
+                    </small>
+                </div>
+                <div class="card-body p-2">
+                    <nav class="nav flex-column gestion-sidebar">
+                        <a class="nav-link py-1 {% if request.resolver_match.url_name|slice:':15' == 'gestion_equipo' %}active{% endif %}"
+                           href="{% url 'core:gestion_equipos' %}">
+                            <i class="bi bi-wrench-adjustable me-1"></i> Equipos
+                        </a>
+                        <a class="nav-link py-1 {% if request.resolver_match.url_name|slice:':17' == 'gestion_categoria' %}active{% endif %}"
+                           href="{% url 'core:gestion_categorias' %}">
+                            <i class="bi bi-tags me-1"></i> Categorías
+                        </a>
+                        <a class="nav-link py-1 {% if request.resolver_match.url_name|slice:':15' == 'gestion_reserva' %}active{% endif %}"
+                           href="{% url 'core:gestion_reservas' %}">
+                            <i class="bi bi-calendar3 me-1"></i> Reservas
+                        </a>
+                        <a class="nav-link py-1 {% if request.resolver_match.url_name|slice:':15' == 'gestion_usuario' %}active{% endif %}"
+                           href="{% url 'core:gestion_usuarios' %}">
+                            <i class="bi bi-people me-1"></i> Usuarios
+                        </a>
+                        <a class="nav-link py-1 {% if request.resolver_match.url_name|slice:':15' == 'gestion_bloqueo' %}active{% endif %}"
+                           href="{% url 'core:gestion_bloqueos' %}">
+                            <i class="bi bi-slash-circle me-1"></i> Bloqueos
+                        </a>
+                        <a class="nav-link py-1 {% if request.resolver_match.url_name == 'gestion_pagos' %}active{% endif %}"
+                           href="{% url 'core:gestion_pagos' %}">
+                            <i class="bi bi-cash-stack me-1"></i> Pagos
+                        </a>
+                        <hr class="my-2">
+                        <a class="nav-link py-1" href="{% url 'core:dashboard_admin' %}">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!-- Contenido principal -->
+        <div class="col-lg-10 col-md-9">
+            {% block gestion_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

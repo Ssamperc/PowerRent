@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}PowerRent - Alquiler Profesional de Equipos de Construcción{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #edf0f5 0%, #3d61b5 100%) !important;">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <span class="badge bg-warning text-dark mb-3">🏗️ Equipos de Construcción Profesional</span>
+                <h1 class="display-4 fw-bold mb-4">
+                    Alquila el equipo que necesitas,
+                    <span class="text-warning">cuando lo necesitas</span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Más de 200 equipos disponibles: taladros, mezcladoras, compactadoras, andamios y más.
+                    Reserva al instante con confirmación automática.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'equipos:lista' %}" class="btn btn-warning btn-lg fw-bold">
+                        <i class="bi bi-tools"></i> Ver Equipos
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'usuarios:registro' %}" class="btn btn-outline-light btn-lg">
+                        Crear Cuenta Gratis
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="mt-4 d-flex gap-4 text-muted">
+                    <div><i class="bi bi-check-circle text-warning"></i> Reserva instantánea</div>
+                    <div><i class="bi bi-check-circle text-warning"></i> Entrega a domicilio</div>
+                    <div><i class="bi bi-check-circle text-warning"></i> Soporte 24/7</div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center mt-4 mt-lg-0">
+                <div class="bg-secondary rounded-3 p-5" style="font-size: 8rem;">🏗️</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categorías -->
+{% if categorias %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-2">Nuestras Categorías</h2>
+        <p class="text-center text-muted mb-4">Encuentra el equipo según tu necesidad</p>
+        <div class="row g-3">
+            {% for categoria in categorias %}
+            <div class="col-6 col-md-3">
+                <a href="{% url 'equipos:por_categoria' categoria.slug %}" class="text-decoration-none">
+                    <div class="card h-100 text-center border-0 shadow-sm hover-card">
+                        <div class="card-body py-4">
+                            <div class="fs-1 mb-2">🔧</div>
+                            <h6 class="card-title fw-bold text-dark">{{ categoria.nombre }}</h6>
+                            <small class="text-muted">{{ categoria.equipos_disponibles }} disponibles</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Equipos Destacados -->
+{% if equipos_destacados %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Equipos Disponibles</h2>
+                <p class="text-muted mb-0">Los más solicitados por nuestros clientes</p>
+            </div>
+            <a href="{% url 'equipos:lista' %}" class="btn btn-outline-warning">Ver todos</a>
+        </div>
+        <div class="row g-4">
+            {% for equipo in equipos_destacados %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if equipo.imagen_principal %}
+                    <img src="{{ equipo.imagen_principal.url }}" class="card-img-top" alt="{{ equipo.nombre }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-secondary text-center py-5 text-white" style="height: 200px; display:flex; align-items:center; justify-content:center; font-size: 4rem;">🔧</div>
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">Disponible</span>
+                        <h5 class="card-title fw-bold">{{ equipo.nombre }}</h5>
+                        <p class="text-muted small">{{ equipo.categoria.nombre }}</p>
+                        <p class="card-text text-muted small">{{ equipo.descripcion|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="fw-bold text-warning fs-5">${{ equipo.precio_por_dia|floatformat:0 }}</span>
+                                <small class="text-muted">/día</small>
+                            </div>
+                            <a href="{% url 'equipos:detalle' equipo.slug %}" class="btn btn-warning btn-sm">Ver Detalle</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Por qué elegirnos -->
+<section class="py-5 bg-dark text-white">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">¿Por qué elegir <span class="text-warning">PowerRent</span>?</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="fs-1 mb-3">⚡</div>
+                <h5 class="fw-bold">Reserva Instantánea</h5>
+                <p class="text-muted">Confirmación automática al instante. Sin esperas ni llamadas.</p>
+            </div>
+            <div class="col-md-3">
+                <div class="fs-1 mb-3">🚚</div>
+                <h5 class="fw-bold">Entrega a Domicilio</h5>
+                <p class="text-muted">Llevamos el equipo hasta tu obra o lugar de trabajo.</p>
+            </div>
+            <div class="col-md-3">
+                <div class="fs-1 mb-3">🛡️</div>
+                <h5 class="fw-bold">Equipos Garantizados</h5>
+                <p class="text-muted">Todos los equipos pasan revisión de calidad antes de cada alquiler.</p>
+            </div>
+            <div class="col-md-3">
+                <div class="fs-1 mb-3">📞</div>
+                <h5 class="fw-bold">Soporte 24/7</h5>
+                <p class="text-muted">Asistencia técnica disponible cuando la necesites.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

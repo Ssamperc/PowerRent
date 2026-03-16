@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - PowerRent{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card { border-left: 4px solid; border-radius: 8px; }
+    .stat-card-orange { border-left-color: #f97316; }
+    .stat-card-blue { border-left-color: #3b82f6; }
+    .stat-card-green { border-left-color: #10b981; }
+    .stat-card-red { border-left-color: #ef4444; }
+    .stat-card-yellow { border-left-color: #f59e0b; }
+    .stat-card-gray { border-left-color: #6b7280; }
+    .stat-number { font-size: 2rem; font-weight: 700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">
+                <i class="bi bi-speedometer2 text-warning"></i> Dashboard Administrativo
+            </h2>
+            <p class="text-muted mb-0">PowerRent - Panel de Control</p>
+        </div>
+        <div>
+            <a href="/admin/" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-gear"></i> Django Admin
+            </a>
+            <a href="{% url 'equipos:lista' %}" class="btn btn-primary">
+                <i class="bi bi-eye"></i> Ver Sitio
+            </a>
+        </div>
+    </div>
+
+    <!-- Alertas críticas -->
+    {% if reservas_vencidas %}
+    <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div>
+            <strong>¡Atención!</strong> Hay <strong>{{ reservas_vencidas.count }}</strong> reserva(s) vencidas que requieren atención.
+            <a href="/admin/reservas/reserva/?estado__exact=vencida" class="alert-link ms-2">Ver reservas vencidas →</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Estadísticas principales - Equipos -->
+    <h5 class="text-muted fw-semibold mb-3 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.1em;">
+        <i class="bi bi-tools"></i> Equipos
+    </h5>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card stat-card-orange h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">Total Equipos</p>
+                            <div class="stat-number text-dark">{{ total_equipos }}</div>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-3 p-2">
+                            <i class="bi bi-tools fs-4 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card stat-card-green h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">Disponibles</p>
+                            <div class="stat-number text-success">{{ equipos_disponibles }}</div>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-3 p-2">
+                            <i class="bi bi-check-circle fs-4 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card stat-card-blue h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">Rentados Ahora</p>
+                            <div class="stat-number text-primary">{{ equipos_rentados }}</div>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-2">
+                            <i class="bi bi-person-check fs-4 text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card stat-card-yellow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1 small">En Mantenimiento</p>
+                            <div class="stat-number text-warning">{{ equipos_mantenimiento }}</div>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-3 p-2">
+                            <i class="bi bi-wrench fs-4 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas - Reservas -->
+    <h5 class="text-muted fw-semibold mb-3 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.1em;">
+        <i class="bi bi-calendar-check"></i> Reservas
+    </h5>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card stat-card-gray h-100">
+                <div class="card-body text-center">
+                    <p class="text-muted mb-1 small">Total</p>
+                    <div class="stat-number">{{ total_reservas }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card stat-card-yellow h-100">
+                <div class="card-body text-center">
+                    <p class="text-muted mb-1 small">Pendientes</p>
+                    <div class="stat-number text-warning">{{ reservas_pendientes }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card stat-card-blue h-100">
+                <div class="card-body text-center">
+                    <p class="text-muted mb-1 small">Confirmadas</p>
+                    <div class="stat-number text-primary">{{ reservas_confirmadas }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card stat-card-green h-100">
+                <div class="card-body text-center">
+                    <p class="text-muted mb-1 small">En Curso</p>
+                    <div class="stat-number text-success">{{ reservas_en_curso }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card stat-card-gray h-100">
+                <div class="card-body text-center">
+                    <p class="text-muted mb-1 small">Completadas</p>
+                    <div class="stat-number">{{ reservas_completadas }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card stat-card stat-card-red h-100">
+                <div class="card-body text-center">
+                    <p class="text-muted mb-1 small">Canceladas</p>
+                    <div class="stat-number text-danger">{{ reservas_canceladas }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ingresos del mes -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-dark text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Ingresos del Mes</h6>
+                    <div class="display-6 fw-bold text-warning">
+                        ${{ ingresos_mes|floatformat:0 }} COP
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Total de reservas completadas este mes
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accesos rápidos admin -->
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-lightning text-warning"></i> Acciones Rápidas
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-4">
+                            <a href="/admin/equipos/equipo/add/" class="btn btn-outline-primary w-100 btn-sm">
+                                <i class="bi bi-plus-circle"></i><br>Nuevo Equipo
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="/admin/reservas/reserva/?estado__exact=pendiente" class="btn btn-outline-warning w-100 btn-sm">
+                                <i class="bi bi-clock-history"></i><br>Reservas Pendientes
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="/admin/equipos/bloqueodisponibilidad/add/" class="btn btn-outline-secondary w-100 btn-sm">
+                                <i class="bi bi-calendar-x"></i><br>Bloquear Equipo
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="/admin/pagos/pago/?estado__exact=pendiente" class="btn btn-outline-success w-100 btn-sm">
+                                <i class="bi bi-credit-card"></i><br>Pagos Pendientes
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="/admin/usuarios/usuario/" class="btn btn-outline-dark w-100 btn-sm">
+                                <i class="bi bi-people"></i><br>Usuarios
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <a href="/admin/equipos/calificacionequipo/" class="btn btn-outline-info w-100 btn-sm">
+                                <i class="bi bi-star"></i><br>Calificaciones
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservas próximas -->
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-calendar-event text-primary"></i> Reservas que Comienzan en los Próximos 7 Días
+                </div>
+                <div class="card-body p-0">
+                    {% if reservas_proximas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Reserva</th>
+                                    <th>Cliente</th>
+                                    <th>Equipo</th>
+                                    <th>Inicio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reserva in reservas_proximas %}
+                                <tr>
+                                    <td>
+                                        <a href="/admin/reservas/reserva/{{ reserva.id }}/change/" class="text-decoration-none">
+                                            <small class="fw-semibold">{{ reserva.numero_reserva }}</small>
+                                        </a>
+                                    </td>
+                                    <td><small>{{ reserva.cliente.get_full_name|default:reserva.cliente.username }}</small></td>
+                                    <td><small>{{ reserva.equipo.nombre }}</small></td>
+                                    <td><small class="text-primary">{{ reserva.fecha_inicio }}</small></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-calendar-check fs-2 d-block mb-2"></i>
+                        No hay reservas en los próximos 7 días
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservas vencidas -->
+        <div class="col-lg-6">
+            <div class="card {% if reservas_vencidas %}border-danger{% endif %}">
+                <div class="card-header bg-white fw-semibold {% if reservas_vencidas %}text-danger{% endif %}">
+                    <i class="bi bi-exclamation-triangle {% if reservas_vencidas %}text-danger{% else %}text-muted{% endif %}"></i>
+                    Reservas Vencidas (No Devueltas)
+                </div>
+                <div class="card-body p-0">
+                    {% if reservas_vencidas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Reserva</th>
+                                    <th>Cliente</th>
+                                    <th>Equipo</th>
+                                    <th>Debía devolver</th>
+                                    <th>Días retraso</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reserva in reservas_vencidas %}
+                                {% with hoy=reserva.fecha_fin %}
+                                <tr class="table-danger">
+                                    <td>
+                                        <a href="/admin/reservas/reserva/{{ reserva.id }}/change/" class="text-decoration-none">
+                                            <small class="fw-semibold">{{ reserva.numero_reserva }}</small>
+                                        </a>
+                                    </td>
+                                    <td><small>{{ reserva.cliente.get_full_name|default:reserva.cliente.username }}</small></td>
+                                    <td><small>{{ reserva.equipo.nombre }}</small></td>
+                                    <td><small class="text-danger fw-semibold">{{ reserva.fecha_fin }}</small></td>
+                                    <td><span class="badge bg-danger">{{ reserva.dias_alquiler }} días</span></td>
+                                </tr>
+                                {% endwith %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-check-circle fs-2 d-block mb-2 text-success"></i>
+                        No hay reservas vencidas
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

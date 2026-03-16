@@ -1,0 +1,53 @@
+{% extends "gestion/base.html" %}
+{% block title %}Gestión de Categorías — PowerRent{% endblock %}
+{% block gestion_content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="mb-0"><i class="bi bi-tags me-2 text-primary"></i>Categorías</h4>
+    <a href="{% url 'core:gestion_categoria_crear' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nueva Categoría
+    </a>
+</div>
+
+<div class="row g-3">
+    {% for cat in categorias %}
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="fw-bold mb-1">{{ cat.nombre }}</h6>
+                        <p class="text-muted small mb-2">{{ cat.descripcion|truncatechars:80 }}</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-primary">{{ cat.total }} equipos</span>
+                            <span class="badge bg-success">{{ cat.disponibles }} disponibles</span>
+                            {% if not cat.activo %}
+                            <span class="badge bg-secondary">Inactiva</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if cat.imagen %}
+                    <img src="{{ cat.imagen.url }}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;" class="ms-2">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer d-flex gap-2 py-2">
+                <a href="{% url 'core:gestion_categoria_editar' cat.slug %}" class="btn btn-sm btn-outline-primary flex-fill">
+                    <i class="bi bi-pencil me-1"></i> Editar
+                </a>
+                <a href="{% url 'equipos:por_categoria' cat.slug %}" class="btn btn-sm btn-outline-secondary" title="Ver en catálogo" target="_blank">
+                    <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'core:gestion_categoria_eliminar' cat.slug %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                    <i class="bi bi-trash3"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center text-muted py-5">
+        <i class="bi bi-tags fs-1 d-block mb-2"></i>
+        No hay categorías aún. <a href="{% url 'core:gestion_categoria_crear' %}">Crea la primera.</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

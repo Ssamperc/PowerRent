@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Pagar Reserva - PowerRent{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-1">Pagar Reserva</h4>
+                    <p class="text-muted mb-4">{{ reserva.numero_reserva }}</p>
+
+                    <div class="bg-light rounded p-3 mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Equipo:</span>
+                            <strong>{{ reserva.equipo.nombre }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Período:</span>
+                            <strong>{{ reserva.fecha_inicio|date:"d/m/Y" }} → {{ reserva.fecha_fin|date:"d/m/Y" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>{{ reserva.dias_alquiler }} días x ${{ reserva.equipo.precio_por_dia|floatformat:0 }}:</span>
+                            <strong>${{ reserva.costo_alquiler|floatformat:0 }}</strong>
+                        </div>
+                        {% if reserva.equipo.deposito_garantia > 0 %}
+                        <div class="d-flex justify-content-between mb-2 text-muted">
+                            <span>Depósito (reembolsable):</span>
+                            <span>${{ reserva.equipo.deposito_garantia|floatformat:0 }}</span>
+                        </div>
+                        {% endif %}
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total a pagar:</span>
+                            <span class="text-warning">${{ reserva.costo_total|floatformat:0 }}</span>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Método de Pago</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="metodo_pago" id="efectivo" value="efectivo" checked>
+                                    <label class="btn btn-outline-secondary w-100" for="efectivo">💵 Efectivo</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="metodo_pago" id="tarjeta_credito" value="tarjeta_credito">
+                                    <label class="btn btn-outline-secondary w-100" for="tarjeta_credito">💳 Tarjeta</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="metodo_pago" id="transferencia" value="transferencia">
+                                    <label class="btn btn-outline-secondary w-100" for="transferencia">🏦 Transferencia</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="metodo_pago" id="stripe" value="stripe">
+                                    <label class="btn btn-outline-secondary w-100" for="stripe">⚡ Stripe</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning fw-bold w-100 btn-lg">
+                            <i class="bi bi-lock-fill"></i> Pagar ${{ reserva.costo_total|floatformat:0 }}
+                        </button>
+                    </form>
+
+                    <p class="text-center text-muted small mt-3">
+                        <i class="bi bi-shield-check"></i> Pago seguro y encriptado
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

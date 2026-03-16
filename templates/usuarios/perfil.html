@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Mi Perfil - PowerRent{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-4">
+                <div class="fs-1 mb-3">👤</div>
+                <h4 class="fw-bold">{{ usuario.get_full_name|default:usuario.username }}</h4>
+                <span class="badge {% if usuario.es_administrador %}bg-danger{% else %}bg-primary{% endif %} mb-3">
+                    {{ usuario.get_tipo_usuario_display }}
+                </span>
+                <p class="text-muted small">Miembro desde {{ usuario.created_at|date:"M Y" }}</p>
+                <a href="{% url 'usuarios:editar_perfil' %}" class="btn btn-outline-warning">Editar Perfil</a>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Información Personal</h5>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <small class="text-muted">Nombre</small>
+                            <p class="fw-semibold mb-0">{{ usuario.get_full_name|default:'-' }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted">Usuario</small>
+                            <p class="fw-semibold mb-0">{{ usuario.username }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted">Email</small>
+                            <p class="fw-semibold mb-0">{{ usuario.email|default:'-' }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted">Teléfono</small>
+                            <p class="fw-semibold mb-0">{{ usuario.telefono|default:'-' }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted">Ciudad</small>
+                            <p class="fw-semibold mb-0">{{ usuario.ciudad|default:'-' }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted">Dirección</small>
+                            <p class="fw-semibold mb-0">{{ usuario.direccion|default:'-' }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-flex gap-4">
+                        <a href="{% url 'reservas:mis_reservas' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-calendar-check"></i> Mis Reservas
+                        </a>
+                        <a href="{% url 'pagos:mis_pagos' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-credit-card"></i> Mis Pagos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

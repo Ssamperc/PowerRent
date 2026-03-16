@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}Registro - PowerRent{% endblock %}
+{% block extra_css %}
+<style>
+.tipo-card { cursor: pointer; border: 2px solid #dee2e6; border-radius: 12px; transition: all .2s; padding: 1rem; }
+.tipo-card:hover { border-color: var(--primary-color); }
+.tipo-card.selected { border-color: var(--primary-color); background: rgba(249,115,22,.05); }
+#bloque-codigo-admin { display: none; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h2 class="fw-bold mb-1 text-center">Crear Cuenta</h2>
+                    <p class="text-muted text-center mb-4">Únete a PowerRent gratis</p>
+
+                    <form method="post" id="formRegistro">
+                        {% csrf_token %}
+
+                        <!-- Tipo de usuario (selector visual) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.tipo_usuario.label }}</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="tipo-card text-center" data-value="cliente" onclick="seleccionarTipo('cliente')">
+                                        <i class="bi bi-person-circle fs-2 text-primary d-block mb-1"></i>
+                                        <div class="fw-semibold">Cliente</div>
+                                        <small class="text-muted">Alquila equipos para tus proyectos</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="tipo-card text-center" data-value="administrador" onclick="seleccionarTipo('administrador')">
+                                        <i class="bi bi-shield-lock-fill fs-2 text-warning d-block mb-1"></i>
+                                        <div class="fw-semibold">Administrador</div>
+                                        <small class="text-muted">Gestiona equipos y reservas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Select oculto para enviar el valor -->
+                            <div class="d-none">{{ form.tipo_usuario }}</div>
+                            {% if form.tipo_usuario.errors %}
+                            <div class="text-danger small">{{ form.tipo_usuario.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Código de admin (se muestra solo si selecciona administrador) -->
+                        <div id="bloque-codigo-admin" class="mb-3 p-3 bg-warning bg-opacity-10 border border-warning rounded">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-key me-1"></i>{{ form.codigo_admin.label }}
+                            </label>
+                            {{ form.codigo_admin }}
+                            <div class="form-text">{{ form.codigo_admin.help_text }}</div>
+                            {% if form.codigo_admin.errors %}
+                            <div class="text-danger small mt-1">{{ form.codigo_admin.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Nombre y Apellido -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">{{ form.first_name.label }}</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">{{ form.last_name.label }}</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Usuario -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.username.label }}</label>
+                            {{ form.username }}
+                            <div class="form-text">{{ form.username.help_text }}</div>
+                            {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors|join:", " }}</div>{% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors|join:", " }}</div>{% endif %}
+                        </div>
+
+                        <!-- Teléfono y Ciudad -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label">{{ form.telefono.label }}</label>
+                                {{ form.telefono }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">{{ form.ciudad.label }}</label>
+                                {{ form.ciudad }}
+                            </div>
+                        </div>
+
+                        <!-- Contraseñas -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Contraseña</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Confirmar Contraseña</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors|join:", " }}</div>{% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+                            <i class="bi bi-person-plus me-1"></i> Crear Cuenta
+                        </button>
+                    </form>
+                    <p class="text-center mt-3 mb-0">
+                        ¿Ya tienes cuenta? <a href="{% url 'usuarios:login' %}">Iniciar sesión</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function seleccionarTipo(tipo) {
+    // Actualizar el select oculto
+    document.querySelector('#id_tipo_usuario').value = tipo;
+    // Resaltar la tarjeta seleccionada
+    document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.tipo-card[data-value="${tipo}"]`).classList.add('selected');
+    // Mostrar/ocultar bloque de código admin
+    const bloque = document.getElementById('bloque-codigo-admin');
+    if (tipo === 'administrador') {
+        bloque.style.display = 'block';
+        document.getElementById('id_codigo_admin').required = true;
+    } else {
+        bloque.style.display = 'none';
+        document.getElementById('id_codigo_admin').required = false;
+        document.getElementById('id_codigo_admin').value = '';
+    }
+}
+
+// Inicializar según el valor actual del select
+document.addEventListener('DOMContentLoaded', function() {
+    const val = document.querySelector('#id_tipo_usuario').value || 'cliente';
+    seleccionarTipo(val);
+});
+</script>
+{% endblock %}

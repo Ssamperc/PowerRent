@@ -1,0 +1,90 @@
+{% extends "gestion/base.html" %}
+{% block title %}Gestión de Pagos — PowerRent{% endblock %}
+{% block gestion_content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 class="mb-0"><i class="bi bi-cash-stack me-2 text-primary"></i>Pagos</h4>
+        <small class="text-muted">Total ingresos confirmados: <strong class="text-success">${{ total_ingresos|floatformat:0 }}</strong></small>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <select name="estado" class="form-select form-select-sm">
+                    <option value="">— Todos los estados —</option>
+                    {% for val, label in estados %}
+                    <option value="{{ val }}" {% if val == estado_sel %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>N° Trans.</th>
+                    <th>Cliente</th>
+                    <th>Reserva / Equipo</th>
+                    <th>Tipo</th>
+                    <th>Método</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pago in pagos %}
+                <tr>
+                    <td class="small fw-semibold">{{ pago.numero_transaccion }}</td>
+                    <td>
+                        <a href="{% url 'core:gestion_usuario_detalle' pago.usuario.pk %}" class="text-decoration-none small">
+                            {{ pago.usuario.get_full_name|default:pago.usuario.username }}
+                        </a>
+                    </td>
+                    <td class="small">
+                        {% if pago.reserva %}
+                        <a href="{% url 'core:gestion_reserva_detalle' pago.reserva.pk %}" class="text-decoration-none">
+                            {{ pago.reserva.numero_reserva }}
+                        </a><br>
+                        <span class="text-muted">{{ pago.reserva.equipo.nombre|truncatechars:25 }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="small">{{ pago.get_tipo_pago_display }}</td>
+                    <td class="small">{{ pago.get_metodo_pago_display }}</td>
+                    <td class="fw-semibold">${{ pago.monto|floatformat:0 }}</td>
+                    <td>
+                        {% if pago.estado == 'completado' %}<span class="badge bg-success">Completado</span>
+                        {% elif pago.estado == 'pendiente' %}<span class="badge bg-warning text-dark">Pendiente</span>
+                        {% elif pago.estado == 'fallido' %}<span class="badge bg-danger">Fallido</span>
+                        {% else %}<span class="badge bg-secondary">{{ pago.get_estado_display }}</span>{% endif %}
+                    </td>
+                    <td class="small text-muted">{{ pago.fecha_pago|date:"d/m/Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center text-muted py-4">No hay pagos que mostrar.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&estado={{ estado_sel }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&estado={{ estado_sel }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
