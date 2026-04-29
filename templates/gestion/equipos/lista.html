@@ -1,0 +1,142 @@
+{% extends "gestion/base.html" %}
+{% block title %}Gestión de Equipos — PowerRent{% endblock %}
+{% block gestion_content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 class="mb-0"><i class="bi bi-wrench-adjustable me-2 text-primary"></i>Equipos</h4>
+        <small class="text-muted">{{ paginator.count }} equipos en total</small>
+    </div>
+    <a href="{% url 'core:gestion_equipo_crear' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Equipo
+    </a>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm"
+                       placeholder="Buscar por nombre, código, marca...">
+            </div>
+            <div class="col-md-3">
+                <select name="estado" class="form-select form-select-sm">
+                    <option value="">— Todos los estados —</option>
+                    {% for val, label in estados %}
+                    <option value="{{ val }}" {% if val == estado_sel %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="categoria" class="form-select form-select-sm">
+                    <option value="">— Todas las categorías —</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.slug }}" {% if cat.slug == cat_sel %}selected{% endif %}>{{ cat.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Equipo</th>
+                    <th>Categoría</th>
+                    <th>Precio/día</th>
+                    <th>Estado</th>
+                    <th>Disponible</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipo in equipos %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if equipo.imagen_principal %}
+                            <img src="{{ equipo.imagen_principal.url }}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+                            {% else %}
+                            <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                <i class="bi bi-tools text-white"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <div class="fw-semibold">{{ equipo.nombre }}</div>
+                                <small class="text-muted">{{ equipo.codigo_interno|default:"—" }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-secondary">{{ equipo.categoria.nombre }}</span></td>
+                    <td class="fw-semibold">${{ equipo.precio_por_dia|floatformat:0 }}</td>
+                    <td>
+                        {% if equipo.estado == 'disponible' %}
+                        <span class="badge bg-success">{{ equipo.get_estado_display }}</span>
+                        {% elif equipo.estado == 'alquilado' %}
+                        <span class="badge bg-primary">{{ equipo.get_estado_display }}</span>
+                        {% elif equipo.estado == 'mantenimiento' %}
+                        <span class="badge bg-warning text-dark">{{ equipo.get_estado_display }}</span>
+                        {% else %}
+                        <span class="badge bg-danger">{{ equipo.get_estado_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if equipo.disponible %}
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        {% else %}
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'equipos:detalle' equipo.slug %}" class="btn btn-sm btn-outline-secondary" title="Ver">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'core:gestion_equipo_editar' equipo.slug %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'core:gestion_bloqueo_crear_equipo' equipo.slug %}" class="btn btn-sm btn-outline-warning" title="Bloquear">
+                            <i class="bi bi-slash-circle"></i>
+                        </a>
+                        <a href="{% url 'core:gestion_equipo_eliminar' equipo.slug %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                            <i class="bi bi-trash3"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No hay equipos que mostrar.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-3">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&estado={{ estado_sel }}&categoria={{ cat_sel }}">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&estado={{ estado_sel }}&categoria={{ cat_sel }}">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

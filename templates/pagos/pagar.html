@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Pagar Reserva{% endblock %}
+{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item"><a href="{% url 'reservas:mis_reservas' %}">Mis Reservas</a></li><li class="breadcrumb-item active">Pagar</li></ol></div></nav>{% endblock %}
+{% block extra_css %}
+<style>.btn-check:checked+label{background:var(--or);color:#fff;border-color:var(--or)!important}</style>
+{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner">
+    <div class="pg-head-label">Pago seguro</div>
+    <h1>Pagar Reserva</h1>
+    <p>{{ reserva.numero_reserva }}</p>
+</div></div>
+<div class="container py-4">
+<div class="row justify-content-center">
+<div class="col-lg-5">
+    <div class="card-pr p-4 rv">
+        <!-- Summary -->
+        <div style="background:var(--blk);border-radius:2px;padding:1.25rem;margin-bottom:1.5rem">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:1rem">Resumen</div>
+            <div class="d-flex justify-content-between mb-2" style="font-size:.82rem">
+                <span style="color:rgba(255,255,255,.4)">Equipo</span>
+                <span style="color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase">{{ reserva.equipo.nombre }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2" style="font-size:.82rem">
+                <span style="color:rgba(255,255,255,.4)">Período</span>
+                <span style="color:#fff">{{ reserva.fecha_inicio|date:"d/m/Y" }} → {{ reserva.fecha_fin|date:"d/m/Y" }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2" style="font-size:.82rem">
+                <span style="color:rgba(255,255,255,.4)">{{ reserva.dias_alquiler }} días × ${{ reserva.equipo.precio_por_dia|floatformat:0 }}</span>
+                <span style="color:#fff">${{ reserva.costo_alquiler|floatformat:0 }}</span>
+            </div>
+            {% if reserva.equipo.deposito_garantia > 0 %}
+            <div class="d-flex justify-content-between mb-2" style="font-size:.82rem">
+                <span style="color:rgba(255,255,255,.3)">Depósito (reembolsable)</span>
+                <span style="color:rgba(255,255,255,.4)">${{ reserva.equipo.deposito_garantia|floatformat:0 }}</span>
+            </div>
+            {% endif %}
+            <div style="border-top:1px solid var(--rule);margin-top:.75rem;padding-top:.75rem;display:flex;justify-content:space-between;align-items:center">
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3)">Total</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;color:var(--or)">${{ reserva.costo_total|floatformat:0 }}</span>
+            </div>
+        </div>
+        <!-- Payment method -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="f-label">Método de Pago</label>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="metodo_pago" id="pm_efectivo" value="efectivo" checked>
+                        <label class="w-100 text-center" for="pm_efectivo" style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:2px;padding:.55rem;cursor:pointer;transition:all .12s;display:block">Efectivo</label>
+                    </div>
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="metodo_pago" id="pm_tarjeta" value="tarjeta_credito">
+                        <label class="w-100 text-center" for="pm_tarjeta" style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:2px;padding:.55rem;cursor:pointer;transition:all .12s;display:block">Tarjeta</label>
+                    </div>
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="metodo_pago" id="pm_transferencia" value="transferencia">
+                        <label class="w-100 text-center" for="pm_transferencia" style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:2px;padding:.55rem;cursor:pointer;transition:all .12s;display:block">Transferencia</label>
+                    </div>
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="metodo_pago" id="pm_stripe" value="stripe">
+                        <label class="w-100 text-center" for="pm_stripe" style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border);border-radius:2px;padding:.55rem;cursor:pointer;transition:all .12s;display:block">Stripe</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn-pr btn-or btn-lg-pr w-100 justify-content-center">
+                <i class="bi bi-lock-fill"></i>Pagar ${{ reserva.costo_total|floatformat:0 }}
+            </button>
+        </form>
+        <p style="text-align:center;font-size:.72rem;color:var(--muted);margin-top:.85rem">
+            <i class="bi bi-shield-check me-1"></i>Pago seguro y encriptado
+        </p>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}

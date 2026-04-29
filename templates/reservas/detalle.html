@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Reserva {{ reserva.numero_reserva }} - PowerRent{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-1">Reserva <code>{{ reserva.numero_reserva }}</code></h4>
+                            <p class="text-muted mb-0">Creada el {{ reserva.created_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        {% if reserva.estado == 'pendiente' %}<span class="badge bg-warning text-dark fs-6">Pendiente</span>
+                        {% elif reserva.estado == 'confirmada' %}<span class="badge bg-primary fs-6">Confirmada</span>
+                        {% elif reserva.estado == 'en_curso' %}<span class="badge bg-success fs-6">En Curso</span>
+                        {% elif reserva.estado == 'completada' %}<span class="badge bg-secondary fs-6">Completada</span>
+                        {% elif reserva.estado == 'cancelada' %}<span class="badge bg-danger fs-6">Cancelada</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-muted">EQUIPO</h6>
+                            <h5>{{ reserva.equipo.nombre }}</h5>
+                            <p class="text-muted small">{{ reserva.equipo.categoria.nombre }} | {{ reserva.equipo.codigo_interno }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-muted">PERÍODO</h6>
+                            <p class="mb-1"><i class="bi bi-calendar-check"></i> Inicio: <strong>{{ reserva.fecha_inicio|date:"d/m/Y" }}</strong></p>
+                            <p class="mb-1"><i class="bi bi-calendar-x"></i> Fin: <strong>{{ reserva.fecha_fin|date:"d/m/Y" }}</strong></p>
+                            <p class="mb-0 text-muted small">{{ reserva.dias_alquiler }} días</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-muted">COSTOS</h6>
+                            <p class="mb-1">Alquiler: <strong>${{ reserva.costo_alquiler|floatformat:0 }}</strong></p>
+                            {% if reserva.costo_adicional > 0 %}
+                            <p class="mb-1 text-danger">Cargos adicionales: <strong>${{ reserva.costo_adicional|floatformat:0 }}</strong></p>
+                            {% endif %}
+                            <p class="mb-0 fw-bold text-warning fs-5">Total: ${{ reserva.costo_total|floatformat:0 }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="fw-bold text-muted">CLIENTE</h6>
+                            <p class="mb-0">{{ reserva.cliente.get_full_name|default:reserva.cliente.username }}</p>
+                            <p class="text-muted small mb-0">{{ reserva.cliente.email }}</p>
+                        </div>
+                    </div>
+
+                    {% if reserva.notas_cliente %}
+                    <hr>
+                    <h6 class="fw-bold text-muted">NOTAS</h6>
+                    <p>{{ reserva.notas_cliente }}</p>
+                    {% endif %}
+
+                    <div class="d-flex gap-2 mt-4">
+                        {% if reserva.estado == 'pendiente' %}
+                        <a href="{% url 'pagos:pagar' reserva.pk %}" class="btn btn-warning">
+                            <i class="bi bi-credit-card"></i> Pagar Ahora
+                        </a>
+                        <a href="{% url 'reservas:cancelar' reserva.pk %}" class="btn btn-outline-danger">
+                            Cancelar Reserva
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'reservas:mis_reservas' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Mis Reservas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagos asociados -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Pagos</h6>
+                    {% for pago in reserva.pagos.all %}
+                    <div class="border rounded p-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <small class="fw-bold">{{ pago.get_tipo_pago_display }}</small>
+                            {% if pago.estado == 'completado' %}
+                            <span class="badge bg-success">Completado</span>
+                            {% elif pago.estado == 'pendiente' %}
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ pago.get_estado_display }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="fw-bold text-warning mb-0">${{ pago.monto|floatformat:0 }}</p>
+                        <small class="text-muted">{{ pago.get_metodo_pago_display }}</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small">No hay pagos registrados</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Registrarse" %}{% endblock %}
+{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">{% trans "Registro" %}</li></ol></div></nav>{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner"><div class="pg-head-label">Nuevo usuario</div><h1>Crear Cuenta</h1><p>Únete a PowerRent y accede a todos los equipos</p></div></div>
+<div class="container py-4">
+<div class="row justify-content-center">
+<div class="col-lg-7">
+<div class="card-pr p-4 rv">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row g-3">
+        {% for field in form %}
+        <div class="col-{% if 'password' in field.html_name or field.html_name == 'email' %}12{% else %}md-6 col-12{% endif %}">
+            <label class="f-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {% if field.field.widget.input_type == 'select' %}
+            <select name="{{ field.html_name }}" class="f-input {% if field.errors %}is-invalid{% endif %}">
+                {% for val, lbl in field.field.choices %}<option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
+            </select>
+            {% else %}
+            <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
+                   value="{% if field.field.widget.input_type != 'password' %}{{ field.value|default:'' }}{% endif %}"
+                   class="f-input {% if field.errors %}is-invalid{% endif %}"
+                   placeholder="{{ field.label }}" {% if field.field.required %}required{% endif %}>
+            {% endif %}
+            {% if field.errors %}<div class="f-error">{{ field.errors|join:", " }}</div>{% endif %}
+            {% if field.help_text %}<div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">{{ field.help_text }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        </div>
+        {% if form.non_field_errors %}<div class="f-error mt-3">{{ form.non_field_errors|join:", " }}</div>{% endif %}
+        <div class="d-flex gap-3 align-items-center mt-4 flex-wrap">
+            <button type="submit" class="btn-pr btn-or btn-lg-pr">Crear Cuenta</button>
+            <a href="{% url 'usuarios:login' %}" style="font-size:.82rem;color:var(--muted)">¿Ya tienes cuenta? <span style="color:var(--or);font-weight:600">Iniciar sesión</span></a>
+        </div>
+    </form>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}

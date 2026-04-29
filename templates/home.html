@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Inicio" %}{% endblock %}
+{% block extra_css %}
+<style>
+.hero{background:var(--blk);min-height:92vh;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden}
+
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.035) 1px,transparent 1px);background-size:55px 55px;pointer-events:none}
+.hero-l{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;padding:5rem 3.5rem 7rem 4rem;border-right:1px solid var(--rule)}
+.hero-r{position:relative;z-index:1;display:flex;flex-direction:column}
+.eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--or);margin-bottom:1.5rem;display:flex;align-items:center;gap:.55rem}
+.eyebrow::before{content:'';width:20px;height:2px;background:var(--or)}
+.hl{font-family:'Barlow Condensed',sans-serif;font-size:clamp(3.5rem,6.5vw,5.5rem);font-weight:900;line-height:.95;letter-spacing:-.02em;color:#fff;text-transform:uppercase;margin-bottom:1.75rem}
+.hl .stroke{-webkit-text-stroke:2px #fff;color:transparent;display:block}
+.hl .fill{color:var(--or);display:block}
+.hero-body{color:rgba(255,255,255,.4);font-size:.9rem;line-height:1.75;max-width:420px;margin-bottom:2.25rem}
+.cta-row{display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;margin-bottom:2.5rem}
+.h-btn{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:none;padding:.8rem 1.75rem;border-radius:2px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:.45rem;text-decoration:none}
+.h-btn-or{background:var(--or);color:#fff}.h-btn-or:hover{background:var(--or-dark);color:#fff;transform:translateY(-1px)}
+.h-btn-g{background:transparent;color:rgba(255,255,255,.45);border-bottom:1px solid rgba(255,255,255,.15);border-radius:0;padding:.2rem 0}.h-btn-g:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+.checks{display:flex;flex-direction:column;gap:.5rem;padding-top:1.75rem;border-top:1px solid var(--rule)}
+.check-item{font-size:.78rem;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:.5rem}
+.check-item i{color:var(--or);font-size:.72rem}
+/* 3D canvas */
+#hero-canvas{flex:1;width:100%;display:block;min-height:0;height:100%}
+/* Marquee */
+.marquee-wrap{border-top:1px solid var(--rule);overflow:hidden;padding:.6rem 0;background:rgba(255,92,0,.03)}
+.marquee-track{display:flex;gap:2rem;animation:mq 20s linear infinite;width:max-content}
+.mq-item{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);white-space:nowrap;display:flex;align-items:center;gap:.6rem}
+.mq-item::after{content:'';width:3px;height:3px;background:var(--or);border-radius:50%}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* Stats */
+.stats-bar{background:#fff;border-bottom:1px solid var(--border)}
+.stat-i{padding:1.4rem 1rem;border-right:1px solid var(--border);text-align:left}
+.stat-i:last-child{border-right:none}
+.stat-n{font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;color:var(--or);line-height:1;letter-spacing:-.02em}
+.stat-l{font-size:.72rem;color:var(--muted);margin-top:.25rem}
+/* Cats */
+.cat-a{display:block;background:#fff;border:1px solid var(--border);border-radius:2px;padding:1.1rem .9rem;text-decoration:none;color:var(--txt);transition:border-color .15s,transform .12s;position:relative;overflow:hidden}
+.cat-a::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--or);transform:scaleY(0);transform-origin:bottom;transition:transform .15s}
+.cat-a:hover::before{transform:scaleY(1)}
+.cat-a:hover{border-color:var(--or);transform:translateY(-2px);color:var(--txt)}
+.cat-icon{font-size:1.2rem;color:var(--or);margin-bottom:.55rem}
+.cat-nm{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.cat-ct{font-size:.68rem;color:var(--muted);margin-top:.1rem}
+/* Equipment cards */
+.eq-card{background:#fff;border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color .15s,transform .12s,box-shadow .15s}
+.eq-card:hover{border-color:var(--or);transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.09)}
+.eq-img{height:195px;object-fit:cover;width:100%;display:block;border-bottom:1px solid var(--border)}
+.eq-noimg{height:195px;background:var(--lt2);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.eq-body{padding:1rem}
+.eq-cat{font-family:'Barlow Condensed',sans-serif;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--or);margin-bottom:.3rem}
+.eq-nm{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.01em;line-height:1.2;color:var(--txt);margin-bottom:.35rem}
+.eq-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.85rem}
+.eq-foot{display:flex;justify-content:space-between;align-items:center;padding-top:.7rem;border-top:1px solid var(--lt2)}
+.eq-price{font-family:'Barlow Condensed',sans-serif;font-size:1.25rem;font-weight:900;color:var(--or)}
+.eq-price small{font-size:.67rem;font-weight:400;color:var(--muted);font-family:'Barlow',sans-serif}
+/* Features */
+.feat-grid{background:var(--blk);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.feat-item{padding:2rem 1.75rem;border-left:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.feat-num{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;color:var(--or);margin-bottom:.85rem}
+.feat-ic{font-size:1.4rem;color:var(--or);opacity:.7;margin-bottom:.65rem}
+.feat-tt{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:#fff;margin-bottom:.5rem}
+.feat-tx{font-size:.8rem;color:rgba(255,255,255,.3);line-height:1.65}
+/* CTA band */
+.cta-band{background:var(--or);padding:3rem 0}
+.cta-band h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:900;text-transform:uppercase;letter-spacing:-.01em;color:#fff;line-height:1}
+.cta-band p{color:rgba(255,255,255,.65);font-size:.87rem;margin-top:.6rem}
+.btn-wh{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:#fff;color:var(--or);border:none;padding:.75rem 2rem;border-radius:2px;cursor:pointer;transition:background .12s;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none}
+.btn-wh:hover{background:#ffe0cc;color:var(--or)}
+/* Section head */
+.sec-label{font-family:'Barlow Condensed',sans-serif;font-size:.67rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.45rem;display:flex;align-items:center;gap:.45rem}
+.sec-label::before{content:'';width:14px;height:2px;background:var(--or)}
+.sec-tt{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.6rem,2.5vw,2.2rem);font-weight:900;text-transform:uppercase;letter-spacing:-.01em;line-height:1;color:var(--txt)}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.hero-r{display:none}.hero-l{padding:4rem 1.5rem 6rem}}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-l">
+        <div class="eyebrow">{% trans "Equipos de Construcción Profesional" %}</div>
+        <h1 class="hl">
+            <span class="stroke">{% trans "Alquila el equipo" %}</span>
+            <span class="fill">{% trans "cuando lo necesitas" %}</span>
+        </h1>
+        <p class="hero-body">{% trans "Más de 200 equipos disponibles: taladros, mezcladoras, compactadoras, andamios y más. Reserva al instante con confirmación automática." %}</p>
+        <div class="cta-row">
+            <a href="{% url 'equipos:lista' %}" class="h-btn h-btn-or"><i class="bi bi-search"></i>{% trans "Ver Equipos Disponibles" %}</a>
+            {% if not user.is_authenticated %}<a href="{% url 'usuarios:registro' %}" class="h-btn h-btn-g">{% trans "Crear Cuenta Gratis" %} <i class="bi bi-arrow-right"></i></a>{% endif %}
+        </div>
+        <div class="checks">
+            <div class="check-item"><i class="bi bi-check2-circle"></i>{% trans "Confirmación automática instantánea" %}</div>
+            <div class="check-item"><i class="bi bi-check2-circle"></i>{% trans "Entrega y recogida a domicilio" %}</div>
+            <div class="check-item"><i class="bi bi-check2-circle"></i>{% trans "Equipos revisados antes de cada alquiler" %}</div>
+        </div>
+    </div>
+    <div class="hero-r">
+        <canvas id="hero-canvas"></canvas>
+        <div class="marquee-wrap">
+            <div class="marquee-track" id="mtrack"></div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-bar">
+    <div class="container-fluid px-0">
+        <div class="row g-0">
+            <div class="col-6 col-md-3 stat-i"><div class="stat-n">{{ total_equipos }}+</div><div class="stat-l">{% trans "Equipos disponibles" %}</div></div>
+            <div class="col-6 col-md-3 stat-i"><div class="stat-n">500+</div><div class="stat-l">{% trans "Clientes activos" %}</div></div>
+            <div class="col-6 col-md-3 stat-i"><div class="stat-n">4.8</div><div class="stat-l">{% trans "Calificación promedio" %}</div></div>
+            <div class="col-6 col-md-3 stat-i" style="border:none"><div class="stat-n">24/7</div><div class="stat-l">{% trans "Soporte técnico" %}</div></div>
+        </div>
+    </div>
+</section>
+
+{% if categorias %}
+<section class="py-5">
+    <div class="container">
+        <div class="mb-4 rv"><div class="sec-label">{% trans "Categorías" %}</div><div class="sec-tt">{% trans "Encuentra el equipo que necesitas" %}</div></div>
+        <div class="row g-3">
+            {% for cat in categorias %}
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2 rv" style="transition-delay:{{ forloop.counter0 }}00ms">
+                <a href="{% url 'equipos:por_categoria' cat.slug %}" class="cat-a">
+                    <div class="cat-icon"><i class="bi bi-{% cycle 'wrench-adjustable' 'building' 'gear-wide' 'hammer' 'truck' 'boxes' %}"></i></div>
+                    <div class="cat-nm">{{ cat.nombre }}</div>
+                    <div class="cat-ct">{{ cat.equipos_disponibles }} {% trans "disponibles" %}</div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if equipos_destacados %}
+<section class="py-5" style="background:var(--lt2)">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4 rv">
+            <div><div class="sec-label">{% trans "Equipos Disponibles" %}</div><div class="sec-tt">{% trans "Los más solicitados" %}</div></div>
+            <a href="{% url 'equipos:lista' %}" class="btn-pr btn-lt btn-sm-pr">{% trans "Ver todos" %} <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+            {% for eq in equipos_destacados %}
+            <div class="col-md-6 col-lg-4 rv" style="transition-delay:{{ forloop.counter0 }}00ms">
+                <div class="eq-card h-100">
+                    {% if eq.imagen_principal %}<img src="{{ eq.imagen_principal.url }}" alt="{{ eq.nombre }}" class="eq-img">
+                    {% else %}<div class="eq-noimg">Sin imagen</div>{% endif %}
+                    <div class="eq-body">
+                        <div class="eq-cat">{{ eq.categoria.nombre }}</div>
+                        <div class="eq-nm">{{ eq.nombre }}</div>
+                        <div class="eq-desc">{{ eq.descripcion|truncatewords:14 }}</div>
+                        <div class="eq-foot">
+                            <div class="eq-price">${{ eq.precio_por_dia|floatformat:0 }}<small>/{% trans "día" %}</small></div>
+                            <a href="{% url 'equipos:detalle' eq.slug %}" class="btn-pr btn-or btn-sm-pr">{% trans "Ver detalle" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="feat-grid py-0">
+    <div class="container-fluid px-0">
+        <div class="row g-0">
+            <div class="col-12 px-4 py-4" style="border-bottom:1px solid var(--rule)">
+                <div class="sec-label" style="color:var(--or)">{% trans "Por qué elegir PowerRent" %}</div>
+                <div class="sec-tt" style="color:#fff">{% trans "Ventajas que nos diferencian" %}</div>
+            </div>
+            {% for x in "1234"|make_list %}
+            <div class="col-sm-6 col-lg-3 feat-item rv" style="transition-delay:{{ forloop.counter0 }}00ms">
+                {% if forloop.counter == 1 %}<div class="feat-num">01</div><div class="feat-ic"><i class="bi bi-lightning-charge-fill"></i></div><div class="feat-tt">{% trans "Reserva Instantánea" %}</div><div class="feat-tx">{% trans "Confirmación automática al instante. Sin llamadas ni esperas." %}</div>
+                {% elif forloop.counter == 2 %}<div class="feat-num">02</div><div class="feat-ic"><i class="bi bi-truck"></i></div><div class="feat-tt">{% trans "Entrega a Domicilio" %}</div><div class="feat-tx">{% trans "Llevamos el equipo hasta tu obra o lugar de trabajo." %}</div>
+                {% elif forloop.counter == 3 %}<div class="feat-num">03</div><div class="feat-ic"><i class="bi bi-shield-check"></i></div><div class="feat-tt">{% trans "Equipos Garantizados" %}</div><div class="feat-tx">{% trans "Revisión de calidad antes de cada alquiler." %}</div>
+                {% else %}<div class="feat-num">04</div><div class="feat-ic"><i class="bi bi-headset"></i></div><div class="feat-tt">{% trans "Soporte 24/7" %}</div><div class="feat-tx">{% trans "Asistencia técnica disponible cuando la necesites." %}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if not user.is_authenticated %}
+<section class="cta-band">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-md-8 rv-l"><h2>{% trans "Empieza hoy" %}</h2><p>{% trans "Crea tu cuenta gratis y accede a todos los equipos disponibles." %}</p></div>
+            <div class="col-md-4 text-md-end rv-r"><a href="{% url 'usuarios:registro' %}" class="btn-wh">{% trans "Crear Cuenta Gratis" %} <i class="bi bi-arrow-right"></i></a></div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Marquee
+(function(){
+    const items = ['TALADROS','MEZCLADORAS','COMPACTADORAS','ANDAMIOS','EXCAVADORAS','SIERRAS','GENERADORES','BOMBAS','VIBRADORES','CORTADORAS'];
+    const t = document.getElementById('mtrack');
+    if(!t) return;
+    const full = [...items,...items];
+    full.forEach(n => {
+        const s = document.createElement('span');
+        s.className = 'mq-item';
+        s.textContent = n;
+        t.appendChild(s);
+    });
+})();
+
+// WebGL 3D — drill + scaffolding silhouettes
+(function(){
+    const cv = document.getElementById('hero-canvas');
+    if(!cv) return;
+    function resize(){ cv.width = cv.clientWidth; cv.height = cv.clientHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const gl = cv.getContext('webgl');
+    if(!gl) return;
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    function sh(type, src){
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        return s;
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, `attribute vec3 p;uniform mat4 m;void main(){gl_Position=m*vec4(p,1.0);}`));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `precision mediump float;uniform vec4 col;void main(){gl_FragColor=col;}`));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const aP = gl.getAttribLocation(prog,'p');
+    const uM = gl.getUniformLocation(prog,'m');
+    const uC = gl.getUniformLocation(prog,'col');
+    const buf = gl.createBuffer();
+
+    // Matrix helpers
+    const I=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+    function mul(a,b){const r=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[i*4+k]*b[k*4+j];r[i*4+j]=s}return r}
+    function ry(a){const c=Math.cos(a),s=Math.sin(a),m=I();m[0]=c;m[2]=s;m[8]=-s;m[10]=c;return m}
+    function rx(a){const c=Math.cos(a),s=Math.sin(a),m=I();m[5]=c;m[6]=-s;m[9]=s;m[10]=c;return m}
+    function tr(x,y,z){const m=I();m[12]=x;m[13]=y;m[14]=z;return m}
+    function persp(fov,asp,n,f){const t=Math.tan(fov/2),m=new Float32Array(16);m[0]=1/(asp*t);m[5]=1/t;m[10]=(f+n)/(n-f);m[11]=-1;m[14]=2*f*n/(n-f);return m}
+
+    // Box wireframe
+    function box(cx,cy,cz,w,h,d){
+        const hw=w/2,hh=h/2,hd=d/2;
+        const v=[[cx-hw,cy-hh,cz-hd],[cx+hw,cy-hh,cz-hd],[cx+hw,cy+hh,cz-hd],[cx-hw,cy+hh,cz-hd],[cx-hw,cy-hh,cz+hd],[cx+hw,cy-hh,cz+hd],[cx+hw,cy+hh,cz+hd],[cx-hw,cy+hh,cz+hd]];
+        const e=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+        const pts=[];e.forEach(([a,b])=>pts.push(...v[a],...v[b]));
+        return new Float32Array(pts);
+    }
+
+    // Shapes: power drill body
+    const drill = {
+        parts:[
+            {v:()=>box(0,0,0,.45,1.0,.4),c:[1,.36,.02,.7]},    // body
+            {v:()=>box(0,.55,.1,.18,.3,.18),c:[.8,.8,.8,.5]},   // motor head
+            {v:()=>box(0,-.65,.05,.12,.35,.12),c:[.7,.6,.5,.5]},// grip
+            {v:()=>box(0,.9,.05,.05,.25,.05),c:[.9,.9,.9,.6]},  // bit
+        ],
+        x:-.25, y:.05, z:-3.2, spd:.28, yspd:.5, yo:0
+    };
+
+    // Scaffolding frame
+    const scaf = {
+        parts:[
+            {v:()=>box(-.35,0,0,.06,1.6,.06),c:[.7,.7,.7,.4]},
+            {v:()=>box(.35,0,0,.06,1.6,.06),c:[.7,.7,.7,.4]},
+            {v:()=>box(0,.5,0,.75,.05,.06),c:[1,.36,.02,.6]},
+            {v:()=>box(0,0,0,.75,.05,.06),c:[1,.36,.02,.6]},
+            {v:()=>box(0,-.5,0,.75,.05,.06),c:[1,.36,.02,.6]},
+            {v:()=>box(-.35,0,-.3,.06,1.6,.06),c:[.6,.6,.6,.3]},
+            {v:()=>box(.35,0,-.3,.06,1.6,.06),c:[.6,.6,.6,.3]},
+            {v:()=>box(0,.5,-.3,.75,.05,.06),c:[.8,.3,.02,.4]},
+            {v:()=>box(0,-.5,-.3,.75,.05,.06),c:[.8,.3,.02,.4]},
+        ],
+        x:.45, y:.0, z:-3.8, spd:.18, yspd:.35, yo:2.5
+    };
+
+    // Small mixer drum
+    const mixer = {
+        parts:[
+            {v:()=>box(0,.1,0,.55,.65,.55),c:[1,.36,.02,.55]},
+            {v:()=>box(0,-.45,0,.28,.1,.28),c:[.5,.5,.5,.5]},
+            {v:()=>box(.18,.28,0,.1,.6,.1),c:[.5,.5,.5,.4]},
+        ],
+        x:-.55, y:-.35, z:-2.5, spd:.55, yspd:.7, yo:4.5
+    };
+
+    // Floating tool (wrench shape via boxes)
+    const wrench = {
+        parts:[
+            {v:()=>box(0,.1,0,.12,.9,.1),c:[.75,.75,.75,.5]},
+            {v:()=>box(.15,.55,0,.3,.2,.1),c:[.75,.75,.75,.5]},
+            {v:()=>box(-.15,-.55,0,.3,.2,.1),c:[.75,.75,.75,.5]},
+        ],
+        x:.1, y:.4, z:-2.2, spd:.8, yspd:.9, yo:1.2
+    };
+
+    const shapes = [drill, scaf, mixer, wrench];
+
+    function draw(v, mat, color){
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, v, gl.DYNAMIC_DRAW);
+        gl.enableVertexAttribArray(aP);
+        gl.vertexAttribPointer(aP, 3, gl.FLOAT, false, 0, 0);
+        gl.uniformMatrix4fv(uM, false, mat);
+        gl.uniform4fv(uC, color);
+        gl.drawArrays(gl.LINES, 0, v.length/3);
+    }
+
+    function frame(ts){
+        const t = ts*.001;
+        resize();
+        gl.viewport(0,0,cv.width,cv.height);
+        gl.clearColor(0,0,0,0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        const proj = persp(Math.PI/3.8, cv.width/cv.height, .1, 20);
+
+        shapes.forEach(sh => {
+            const yf = Math.sin(t*sh.yspd + sh.yo)*.055;
+            const model = mul(mul(tr(sh.x, sh.y+yf, sh.z), ry(t*sh.spd)), rx(.2));
+            sh.parts.forEach(p => draw(p.v(), mul(proj, model), new Float32Array(p.c)));
+        });
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+})();
+</script>
+{% endblock %}

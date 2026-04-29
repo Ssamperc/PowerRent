@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ equipo.nombre }}{% endblock %}
+{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'equipos:lista' %}">{% trans "Equipos" %}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'equipos:por_categoria' equipo.categoria.slug %}">{{ equipo.categoria.nombre }}</a></li>
+<li class="breadcrumb-item active">{{ equipo.nombre }}</li>
+</ol></div></nav>{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner">
+    <div class="pg-head-label">{{ equipo.categoria.nombre }}</div>
+    <h1>{{ equipo.nombre }}</h1>
+    <p>{{ equipo.marca }}{% if equipo.modelo %} · {{ equipo.modelo }}{% endif %} — {{ equipo.codigo_interno }}</p>
+</div></div>
+
+<div class="container py-4">
+<div class="row g-4">
+    <!-- Image -->
+    <div class="col-lg-6 rv-l">
+        {% if equipo.imagen_principal %}
+        <img src="{{ equipo.imagen_principal.url }}" alt="{{ equipo.nombre }}" style="width:100%;height:380px;object-fit:cover;border-radius:2px;border:1px solid var(--border)">
+        {% else %}
+        <div style="height:380px;background:var(--lt2);border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)">Sin imagen</div>
+        {% endif %}
+        {% if equipo.imagenes.exists %}
+        <div class="d-flex gap-2 mt-2 flex-wrap">
+            {% for img in equipo.imagenes.all %}<img src="{{ img.imagen.url }}" style="width:72px;height:54px;object-fit:cover;border-radius:2px;border:1px solid var(--border)">{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <!-- Info -->
+    <div class="col-lg-6 rv-r">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="b {% if equipo.disponible %}b-green{% else %}b-gray{% endif %}">{{ equipo.get_estado_display }}</span>
+            <span class="b b-or">{{ equipo.categoria.nombre }}</span>
+        </div>
+        <p style="color:var(--muted);font-size:.88rem;line-height:1.7;margin-bottom:1.5rem">{{ equipo.descripcion }}</p>
+
+        <!-- Prices -->
+        <div style="background:var(--blk);border-radius:2px;padding:1.25rem;margin-bottom:1.5rem">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:1rem">Precios de Alquiler</div>
+            <div class="d-flex gap-4 flex-wrap">
+                <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">${{ equipo.precio_por_dia|floatformat:0 }}</div><div style="font-size:.72rem;color:rgba(255,255,255,.3);font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase">Por día</div></div>
+                {% if equipo.precio_por_semana %}<div><div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:#fff;line-height:1">${{ equipo.precio_por_semana|floatformat:0 }}</div><div style="font-size:.72rem;color:rgba(255,255,255,.3);font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase">Por semana</div></div>{% endif %}
+                {% if equipo.precio_por_mes %}<div><div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:#fff;line-height:1">${{ equipo.precio_por_mes|floatformat:0 }}</div><div style="font-size:.72rem;color:rgba(255,255,255,.3);font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase">Por mes</div></div>{% endif %}
+            </div>
+            {% if equipo.deposito_garantia > 0 %}<div style="margin-top:.85rem;padding-top:.85rem;border-top:1px solid var(--rule);font-size:.77rem;color:rgba(255,255,255,.3)"><i class="bi bi-shield-check me-1" style="color:var(--or)"></i>Depósito de garantía: ${{ equipo.deposito_garantia|floatformat:0 }} (reembolsable)</div>{% endif %}
+        </div>
+
+        {% if equipo.disponible %}
+            {% if user.is_authenticated %}
+            <a href="{% url 'reservas:crear' equipo.slug %}" class="btn-pr btn-or btn-lg-pr w-100 justify-content-center"><i class="bi bi-calendar-plus"></i>Reservar Ahora</a>
+            {% else %}
+            <a href="{% url 'usuarios:login' %}" class="btn-pr btn-dk btn-lg-pr w-100 justify-content-center"><i class="bi bi-box-arrow-in-right"></i>Iniciar sesión para reservar</a>
+            {% endif %}
+        {% else %}
+        <button class="btn-pr btn-lt btn-lg-pr w-100 justify-content-center" disabled>No Disponible Actualmente</button>
+        {% endif %}
+    </div>
+</div>
+
+{% if equipo.especificaciones_tecnicas %}
+<div class="mt-5 rv">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem;display:flex;align-items:center;gap:.45rem"><span style="width:14px;height:2px;background:var(--or);display:inline-block"></span>Especificaciones</div>
+    <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;text-transform:uppercase;margin-bottom:1.25rem">Ficha Técnica</h3>
+    <div class="card-pr overflow-hidden">
+        <table class="tbl">
+            <tbody>
+                {% for key, val in equipo.especificaciones_tecnicas.items %}
+                <tr><th style="font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:35%;padding:.65rem .75rem;border-bottom:1px solid var(--lt2);background:var(--lt)">{{ key }}</th><td style="font-size:.82rem">{{ val }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Ratings -->
+<div class="mt-5 rv">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:.3rem;display:flex;align-items:center;gap:.45rem"><span style="width:14px;height:2px;background:var(--or);display:inline-block"></span>Reviews</div>
+            <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;text-transform:uppercase;margin:0">Calificaciones <span style="font-size:1rem;color:var(--muted)">({{ calificaciones|length }})</span></h3>
+        </div>
+        {% if puede_calificar %}<a href="{% url 'equipos:calificar' equipo.slug %}" class="btn-pr btn-or btn-sm-pr"><i class="bi bi-star me-1"></i>Calificar</a>{% endif %}
+    </div>
+    {% if calificaciones %}
+    <div class="row g-3">
+        {% for cal in calificaciones %}
+        <div class="col-md-6">
+            <div class="card-pr p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em">{{ cal.cliente.get_full_name|default:cal.cliente.username }}</div>
+                    <div>{% for i in "12345" %}{% if forloop.counter <= cal.puntuacion %}<i class="bi bi-star-fill" style="color:var(--or);font-size:.75rem"></i>{% else %}<i class="bi bi-star" style="color:var(--border);font-size:.75rem"></i>{% endif %}{% endfor %}</div>
+                </div>
+                {% if cal.comentario %}<p style="font-size:.8rem;color:var(--muted);line-height:1.55;margin:0">{{ cal.comentario }}</p>{% else %}<p style="font-size:.78rem;color:var(--border);font-style:italic;margin:0">Sin comentario.</p>{% endif %}
+                <div style="font-size:.7rem;color:var(--border);margin-top:.5rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em">{{ cal.created_at|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--muted);font-size:.82rem">Aún no hay calificaciones.{% if puede_calificar %} <a href="{% url 'equipos:calificar' equipo.slug %}" style="color:var(--or)">Sé el primero.</a>{% endif %}</p>
+    {% endif %}
+</div>
+
+{% if equipos_relacionados %}
+<div class="mt-5 rv">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:.3rem;display:flex;align-items:center;gap:.45rem"><span style="width:14px;height:2px;background:var(--or);display:inline-block"></span>Ver también</div>
+    <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;text-transform:uppercase;margin-bottom:1.25rem">Equipos Relacionados</h3>
+    <div class="row g-3">
+        {% for rel in equipos_relacionados %}
+        <div class="col-6 col-md-3">
+            <div class="card-pr card-lift overflow-hidden">
+                {% if rel.imagen_principal %}<img src="{{ rel.imagen_principal.url }}" style="width:100%;height:120px;object-fit:cover;border-bottom:1px solid var(--border)">{% else %}<div style="height:120px;background:var(--lt2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--muted);font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em">Sin imagen</div>{% endif %}
+                <div class="p-2">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:800;text-transform:uppercase;margin-bottom:.2rem;line-height:1.2">{{ rel.nombre }}</div>
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:900;color:var(--or)">${{ rel.precio_por_dia|floatformat:0 }}<span style="font-size:.65rem;font-weight:400;color:var(--muted);font-family:'Barlow',sans-serif">/día</span></div>
+                    <a href="{% url 'equipos:detalle' rel.slug %}" class="btn-pr btn-lt btn-sm-pr w-100 mt-2 justify-content-center d-flex">Ver</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+</div>
+{% endblock %}

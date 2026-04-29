@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Notificaciones{% endblock %}
+{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">Notificaciones</li></ol></div></nav>{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div><div class="pg-head-label">Centro de mensajes</div><h1>Notificaciones</h1></div>
+    {% if notificaciones %}<a href="{% url 'core:notificaciones_leer_todas' %}" class="btn-pr btn-lt btn-sm-pr"><i class="bi bi-check2-all"></i>Marcar todas como leídas</a>{% endif %}
+</div></div>
+<div class="container py-4">
+{% if notificaciones %}
+<div class="d-flex flex-column gap-2">
+    {% for n in notificaciones %}
+    <div class="card-pr p-3 d-flex align-items-start gap-3 rv {% if not n.leida %}{% endif %}" style="{% if not n.leida %}border-left:3px solid var(--or){% endif %}">
+        <div style="width:36px;height:36px;border-radius:2px;background:{% if not n.leida %}var(--or){% else %}var(--lt2){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:{% if not n.leida %}#fff{% else %}var(--muted){% endif %}"><i class="bi bi-bell"></i></div>
+        <div class="flex-grow-1">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:700;text-transform:uppercase;margin-bottom:.2rem">{{ n.titulo }}</div>
+            <p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.3rem">{{ n.mensaje }}</p>
+            <div style="font-size:.68rem;color:var(--border);font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em">{{ n.created_at|date:"d/m/Y H:i" }}</div>
+        </div>
+        {% if not n.leida %}<a href="{% url 'core:notificacion_leer' n.pk %}" class="btn-pr btn-lt btn-sm-pr flex-shrink-0"><i class="bi bi-check2"></i></a>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 rv">
+    <i class="bi bi-bell-slash" style="font-size:2.5rem;color:var(--muted)"></i>
+    <h5 style="font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.02em;margin-top:1rem">Sin notificaciones</h5>
+    <p style="color:var(--muted);font-size:.85rem">Todo al día</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}

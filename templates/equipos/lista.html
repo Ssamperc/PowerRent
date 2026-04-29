@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Equipos" %}{% endblock %}
+{% block breadcrumb %}
+<nav class="bc"><div class="container"><ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+<li class="breadcrumb-item active">{% trans "Equipos" %}</li>
+</ol></div></nav>
+{% endblock %}
+{% block extra_css %}<style>
+.eq-card{background:#fff;border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color .15s,transform .12s,box-shadow .15s}
+.eq-card:hover{border-color:var(--or);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.eq-img{height:185px;object-fit:cover;width:100%;display:block;border-bottom:1px solid var(--border)}
+.eq-noimg{height:185px;background:var(--lt2);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.eq-body{padding:.9rem}
+.eq-cat{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--or);margin-bottom:.25rem}
+.eq-nm{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;letter-spacing:.01em;line-height:1.2;color:var(--txt);margin-bottom:.3rem}
+.eq-desc{font-size:.77rem;color:var(--muted);line-height:1.5;margin-bottom:.8rem}
+.eq-foot{display:flex;justify-content:space-between;align-items:center;padding-top:.65rem;border-top:1px solid var(--lt2)}
+.eq-price{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:900;color:var(--or)}
+.eq-price small{font-size:.65rem;font-weight:400;color:var(--muted);font-family:'Barlow',sans-serif}
+</style>{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner">
+    <div class="pg-head-label">PowerRent</div>
+    <h1>{% trans "Equipos" %}</h1>
+    <p>{{ page_obj.paginator.count }} {% trans "equipo(s) encontrado(s)" %}</p>
+</div></div>
+
+<div class="container py-4">
+<div class="row g-4">
+
+<!-- Sidebar -->
+<div class="col-lg-3">
+    <div class="sb rv-l">
+        <div class="sb-head"><i class="bi bi-funnel me-1"></i>{% trans "Filtros" %}</div>
+        <div class="p-3">
+        <form method="get">
+            <div class="mb-3">
+                <label class="f-label">{% trans "Buscar" %}</label>
+                <div class="d-flex gap-1">
+                    <input type="text" name="nombre" value="{{ request.GET.nombre }}" class="f-input" placeholder="Nombre...">
+                    <button type="submit" class="btn-pr btn-or" style="padding:.5rem .7rem;flex-shrink:0"><i class="bi bi-search"></i></button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="f-label">{% trans "Categoría" %}</label>
+                <select name="categoria" class="f-input" onchange="this.form.submit()">
+                    <option value="">{% trans "Todas" %}</option>
+                    {% for cat in categorias %}<option value="{{ cat.id }}" {% if request.GET.categoria == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }} ({{ cat.total_equipos }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="f-label">{% trans "Disponibilidad" %}</label>
+                <div class="d-flex flex-column gap-2">
+                    <label style="font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:.5rem"><input type="radio" name="disponible" value="" {% if not request.GET.disponible %}checked{% endif %} onchange="this.form.submit()"> {% trans "Todos" %}</label>
+                    <label style="font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:.5rem"><input type="radio" name="disponible" value="True" {% if request.GET.disponible == 'True' %}checked{% endif %} onchange="this.form.submit()"> <span class="b b-green">{% trans "Disponibles" %}</span></label>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="f-label">{% trans "Precio máx/día" %} (COP)</label>
+                <input type="number" name="precio_por_dia__lte" value="{{ request.GET.precio_por_dia__lte }}" class="f-input" placeholder="Ej: 100000">
+            </div>
+            <button type="submit" class="btn-pr btn-or w-100">{% trans "Filtrar" %}</button>
+            {% if request.GET %}<a href="{% url 'equipos:lista' %}" class="btn-pr btn-lt w-100 mt-2 d-flex justify-content-center">{% trans "Limpiar" %}</a>{% endif %}
+        </form>
+        </div>
+    </div>
+    {% if categorias %}
+    <div class="sb mt-3 rv-l">
+        <div class="sb-head">{% trans "Categorías" %}</div>
+        {% for cat in categorias %}
+        <a href="{% url 'equipos:por_categoria' cat.slug %}" class="nav-link">
+            <i class="bi bi-tag"></i>{{ cat.nombre }}
+            <span style="margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;background:var(--or-dim);color:var(--or);padding:.1rem .35rem;border-radius:2px;">{{ cat.equipos_disponibles }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Grid -->
+<div class="col-lg-9">
+    {% if equipos %}
+    <div class="row g-3">
+        {% for eq in equipos %}
+        <div class="col-sm-6 col-xl-4 rv" style="transition-delay:{{ forloop.counter0|add:0 }}0ms">
+            <div class="eq-card h-100">
+                {% if eq.imagen_principal %}<img src="{{ eq.imagen_principal.url }}" alt="{{ eq.nombre }}" class="eq-img">
+                {% else %}<div class="eq-noimg">Sin imagen</div>{% endif %}
+                <div class="eq-body">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <div class="eq-cat">{{ eq.categoria.nombre }}</div>
+                        <span class="b {% if eq.disponible %}b-green{% else %}b-gray{% endif %}">{% if eq.disponible %}{% trans "Disponible" %}{% else %}No disp.{% endif %}</span>
+                    </div>
+                    <div class="eq-nm">{{ eq.nombre }}</div>
+                    <div class="eq-desc">{{ eq.descripcion|truncatewords:10 }}</div>
+                    <div class="eq-foot">
+                        <div class="eq-price">${{ eq.precio_por_dia|floatformat:0 }}<small>/{% trans "día" %}</small></div>
+                        <a href="{% url 'equipos:detalle' eq.slug %}" class="btn-pr btn-or btn-sm-pr">{% trans "Ver" %} <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4 d-flex justify-content-center">
+        <ul class="pagination pg-nav">
+            {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+            {% for n in page_obj.paginator.page_range %}{% if page_obj.number == n %}<li class="page-item active"><span class="page-link">{{ n }}</span></li>{% elif n > page_obj.number|add:'-3' and n < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ n }}">{{ n }}</a></li>{% endif %}{% endfor %}
+            {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5 rv">
+        <i class="bi bi-search" style="font-size:2.5rem;color:var(--muted)"></i>
+        <h5 class="fw-bold mt-3" style="font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.02em;">{% trans "No se encontraron equipos" %}</h5>
+        <p class="text-muted">{% trans "Intenta con otros filtros" %} — <a href="{% url 'equipos:lista' %}" style="color:var(--or)">{% trans "ver todos" %}</a></p>
+    </div>
+    {% endif %}
+</div>
+</div>
+</div>
+{% endblock %}

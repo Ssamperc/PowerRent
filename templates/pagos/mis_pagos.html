@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Mis Pagos{% endblock %}
+{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">Mis Pagos</li></ol></div></nav>{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner"><div class="pg-head-label">Historial</div><h1>Mis Pagos</h1></div></div>
+<div class="container py-4">
+{% if pagos %}
+<div class="card-pr overflow-hidden rv">
+<table class="tbl">
+    <thead><tr><th>N° Transacción</th><th>Reserva</th><th>Tipo</th><th>Monto</th><th>Método</th><th>Estado</th><th>Fecha</th></tr></thead>
+    <tbody>
+    {% for p in pagos %}
+    <tr>
+        <td><span class="mono" style="font-size:.75rem;color:var(--muted)">{{ p.numero_transaccion }}</span></td>
+        <td><div style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase">{{ p.reserva.equipo.nombre|truncatechars:20 }}</div><div style="font-size:.7rem;color:var(--muted)">{{ p.reserva.numero_reserva }}</div></td>
+        <td><span class="b b-or">{{ p.get_tipo_pago_display }}</span></td>
+        <td><span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;color:var(--or)">${{ p.monto|floatformat:0 }}</span></td>
+        <td style="font-size:.78rem">{{ p.get_metodo_pago_display }}</td>
+        <td><span class="b {% if p.estado == 'completado' %}b-green{% elif p.estado == 'procesando' %}b-blue{% else %}b-red{% endif %}">{{ p.get_estado_display }}</span></td>
+        <td style="font-size:.75rem;color:var(--muted)">{{ p.fecha_pago|date:"d/m/Y" }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div class="text-center py-5 rv"><i class="bi bi-credit-card" style="font-size:2.5rem;color:var(--muted)"></i><h5 style="font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.02em;margin-top:1rem">Sin pagos registrados</h5><p style="color:var(--muted);font-size:.85rem">Tus pagos aparecerán aquí una vez realices una reserva</p></div>
+{% endif %}
+</div>
+{% endblock %}

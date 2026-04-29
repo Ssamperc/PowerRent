@@ -1,0 +1,117 @@
+# English translations for PowerRent
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+
+msgid "Español"
+msgstr "Spanish"
+
+msgid "English"
+msgstr "English"
+
+msgid "Equipos"
+msgstr "Equipment"
+
+msgid "Mis Reservas"
+msgstr "My Reservations"
+
+msgid "Mis Pagos"
+msgstr "My Payments"
+
+msgid "Gestión"
+msgstr "Management"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Categorías"
+msgstr "Categories"
+
+msgid "Reservas"
+msgstr "Reservations"
+
+msgid "Usuarios"
+msgstr "Users"
+
+msgid "Bloqueos"
+msgstr "Blockings"
+
+msgid "Pagos"
+msgstr "Payments"
+
+msgid "Mi Perfil"
+msgstr "My Profile"
+
+msgid "Notificaciones"
+msgstr "Notifications"
+
+msgid "Cerrar Sesión"
+msgstr "Log Out"
+
+msgid "Iniciar Sesión"
+msgstr "Log In"
+
+msgid "Registrarse"
+msgstr "Sign Up"
+
+msgid "Acceso Rápido"
+msgstr "Quick Access"
+
+msgid "Ver Equipos"
+msgstr "View Equipment"
+
+msgid "Sobre Nosotros"
+msgstr "About Us"
+
+msgid "Contacto"
+msgstr "Contact"
+
+msgid "Alquila el equipo que necesitas, cuando lo necesitas"
+msgstr "Rent the equipment you need, when you need it"
+
+msgid "Ver Equipos Disponibles"
+msgstr "View Available Equipment"
+
+msgid "Crear Cuenta Gratis"
+msgstr "Create Free Account"
+
+msgid "Reserva instantánea"
+msgstr "Instant booking"
+
+msgid "Entrega a domicilio"
+msgstr "Home delivery"
+
+msgid "Soporte 24/7"
+msgstr "24/7 Support"
+
+msgid "Nuestras Categorías"
+msgstr "Our Categories"
+
+msgid "Encuentra el equipo según tu necesidad"
+msgstr "Find the equipment you need"
+
+msgid "Equipos Disponibles"
+msgstr "Available Equipment"
+
+msgid "Ver todos"
+msgstr "View all"
+
+msgid "Disponible"
+msgstr "Available"
+
+msgid "Ver Detalle"
+msgstr "View Details"
+
+msgid "Servicios Aliados"
+msgstr "Partner Services"
+
+msgid "Reporte"
+msgstr "Report"
+
+msgid "Descargar PDF"
+msgstr "Download PDF"
+
+msgid "Descargar Excel"
+msgstr "Download Excel"

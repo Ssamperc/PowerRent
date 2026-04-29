@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Aliados" %}{% endblock %}
+{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">{% trans "Aliados" %}</li></ol></div></nav>{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner">
+    <div class="pg-head-label">Servicios complementarios</div>
+    <h1>{% trans "Servicios de Equipos Aliados" %}</h1>
+    <p>{% trans "Maquinaria pesada y equipos complementarios de nuestros socios" %}</p>
+</div></div>
+<div class="container py-4">
+{% if aliados_data.ok %}
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 rv">
+    <div class="d-flex align-items-center gap-3">
+        <div style="width:42px;height:42px;background:var(--blk);border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.1rem"><i class="bi bi-building"></i></div>
+        <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:800;text-transform:uppercase">{{ aliados_data.empresa_aliada }}</div>
+            <div style="font-size:.78rem;color:var(--muted)">{{ aliados_data.descripcion }}</div>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="b b-green"><i class="bi bi-wifi"></i>Conectado</span>
+        <span style="font-size:.78rem;color:var(--muted)">{{ aliados_data.contacto }}</span>
+    </div>
+</div>
+<div class="row g-3">
+    {% for item in aliados_data.items %}
+    <div class="col-md-6 col-lg-4 rv" style="transition-delay:{{ forloop.counter0 }}00ms">
+        <div class="card-pr card-lift h-100 overflow-hidden">
+            <div style="height:4px;background:{% if item.disponible %}var(--or){% else %}var(--border){% endif %}"></div>
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--lt2);padding:.15rem .45rem;border-radius:2px">{{ item.categoria }}</span>
+                    <span class="b {% if item.disponible %}b-green{% else %}b-gray{% endif %}">{% if item.disponible %}Disponible{% else %}No disp.{% endif %}</span>
+                </div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem;line-height:1.2">{{ item.titulo }}</div>
+                <p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.9rem">{{ item.descripcion }}</p>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:.7rem;border-top:1px solid var(--lt2)">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.15rem;font-weight:900;color:var(--or)">${{ item.precio_dia|floatformat:0 }}<span style="font-size:.65rem;font-weight:400;color:var(--muted);font-family:'Barlow',sans-serif">/día</span></div>
+                    <a href="tel:{{ aliados_data.contacto }}" class="btn-pr btn-lt btn-sm-pr"><i class="bi bi-telephone me-1"></i>Contactar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 rv"><i class="bi bi-plug" style="font-size:2.5rem;color:var(--muted)"></i><h5 style="font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.02em;margin-top:1rem">Servicio no disponible</h5></div>
+{% endif %}
+<div style="background:var(--blk);border-radius:2px;padding:1.5rem;margin-top:2rem;border:1px solid var(--rule)" class="rv">
+    <div class="row align-items-center g-3">
+        <div class="col-md-8">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:.4rem">API Pública</div>
+            <h5 style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;text-transform:uppercase;color:#fff;margin-bottom:.4rem">Nuestro Servicio JSON</h5>
+            <p style="font-size:.8rem;color:rgba(255,255,255,.3);margin:0">PowerRent provee un servicio JSON con equipos disponibles para integraciones.</p>
+        </div>
+        <div class="col-md-4"><a href="/api/equipos/" target="_blank" style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;background:rgba(255,255,255,.05);border:1px solid var(--rule);padding:.4rem .8rem;border-radius:2px;color:rgba(255,255,255,.4);display:inline-block">GET /api/equipos/</a></div>
+    </div>
+</div>
+</div>
+{% endblock %}

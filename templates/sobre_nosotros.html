@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Sobre Nosotros{% endblock %}
+{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">Sobre Nosotros</li></ol></div></nav>{% endblock %}
+{% block content %}
+<div class="pg-head"><div class="container pg-head-inner"><div class="pg-head-label">Nuestra historia</div><h1>Sobre PowerRent</h1><p>Líderes en alquiler de equipos de construcción en Colombia</p></div></div>
+<div class="container py-5">
+<div class="row g-5 align-items-center mb-5">
+    <div class="col-lg-6 rv-l">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem;display:flex;align-items:center;gap:.45rem"><span style="width:14px;height:2px;background:var(--or);display:inline-block"></span>Misión</div>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:1rem">Democratizamos el acceso a equipos profesionales</h2>
+        <p style="color:var(--muted);font-size:.9rem;line-height:1.75;margin-bottom:1rem">PowerRent nació con la misión de eliminar la barrera de compra de maquinaria costosa. Ofrecemos alquiler flexible con reserva instantánea online, para que contratistas y constructores accedan al equipo que necesitan, cuando lo necesitan.</p>
+        <p style="color:var(--muted);font-size:.9rem;line-height:1.75">Somos la primera plataforma en Colombia que automatiza completamente el proceso de alquiler: desde la búsqueda hasta la confirmación de la reserva, sin llamadas ni papeleos.</p>
+    </div>
+    <div class="col-lg-6 rv-r">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            {% for item in "1234"|make_list %}
+            <div style="background:var(--blk);border-radius:2px;padding:1.5rem;border:1px solid var(--rule)">
+                {% if forloop.counter == 1 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">2019</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Año de fundación</div>
+                {% elif forloop.counter == 2 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">200+</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Equipos disponibles</div>
+                {% elif forloop.counter == 3 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">500+</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Clientes activos</div>
+                {% else %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">4.8★</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Calificación promedio</div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="rv">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem;display:flex;align-items:center;gap:.45rem"><span style="width:14px;height:2px;background:var(--or);display:inline-block"></span>Valores</div>
+    <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:1.5rem">Lo que nos guía</h2>
+    <div class="row g-3">
+        {% for v in "1234"|make_list %}
+        <div class="col-sm-6 col-lg-3">
+            <div class="card-pr p-3 h-100" style="border-left:3px solid var(--or)">
+                {% if forloop.counter == 1 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Transparencia</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Precios claros, sin cargos ocultos ni sorpresas.</div>
+                {% elif forloop.counter == 2 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Calidad</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Equipos revisados y en perfecto estado antes de cada alquiler.</div>
+                {% elif forloop.counter == 3 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Servicio</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Atención excepcional y soporte técnico 24/7.</div>
+                {% else %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Puntualidad</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Entrega y recogida en el tiempo acordado, garantizado.</div>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+{% endblock %}

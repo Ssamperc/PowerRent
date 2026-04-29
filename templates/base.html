@@ -1,0 +1,315 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'es' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PowerRent{% endblock %} — {% trans "Alquiler de Equipos" %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --or: #FF5C00;
+        --or-dim: rgba(255,92,0,.1);
+        --or-dark: #d94d00;
+        --blk: #0A0A0A;
+        --blk2: #111;
+        --blk3: #1A1A1A;
+        --rule: rgba(255,255,255,.07);
+        --lt: #F5F4F2;
+        --lt2: #ECEAE6;
+        --border: #E0DDD8;
+        --txt: #1A1A1A;
+        --muted: #7A7570;
+        --white: #fff;
+        --sh: 0 1px 4px rgba(0,0,0,.06);
+        --sh-md: 0 4px 16px rgba(0,0,0,.09);
+        --rad: 3px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Barlow',sans-serif;background:var(--lt);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;font-size:14px;line-height:1.6}
+    main{flex:1}
+    a{text-decoration:none}
+    img{max-width:100%}
+
+    /* ── TOPBAR ── */
+    .topbar{background:var(--blk2);border-bottom:1px solid var(--rule);padding:.3rem 0;font-size:.72rem;color:rgba(255,255,255,.35);font-family:'Barlow',sans-serif}
+    .topbar .rates{display:flex;gap:1rem}
+    .topbar .rates span{display:flex;align-items:center;gap:.3rem}
+    .topbar .rates i{color:var(--or);font-size:.65rem}
+    .lang-form{display:inline}
+    .lang-btn{background:none;border:none;padding:.15rem .4rem;border-radius:2px;font-size:.7rem;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;cursor:pointer;color:rgba(255,255,255,.3);transition:all .12s}
+    .lang-btn:hover,.lang-btn.on{background:rgba(255,255,255,.08);color:#fff}
+    .lang-sep{color:rgba(255,255,255,.15);margin:0 2px}
+
+    /* ── NAVBAR ── */
+    .nav-pr{background:var(--blk);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:1030;padding:.6rem 0}
+    .nav-brand{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--or)!important;text-decoration:none;display:flex;align-items:center;gap:.45rem;letter-spacing:.02em;text-transform:uppercase}
+    .nav-brand .bm{width:28px;height:28px;background:var(--or);border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem}
+    .nl{color:rgba(255,255,255,.55)!important;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .65rem!important;border-radius:2px;transition:all .12s;text-decoration:none;display:flex;align-items:center;gap:.3rem}
+    .nl:hover,.nl.on{color:#fff!important;background:rgba(255,255,255,.07)}
+    .nl-cta{background:var(--or)!important;color:#fff!important;padding:.3rem .9rem!important}
+    .nl-cta:hover{background:var(--or-dark)!important}
+    .dd-menu{background:var(--blk2);border:1px solid var(--rule);border-radius:3px;box-shadow:0 8px 24px rgba(0,0,0,.4);min-width:185px;padding:.35rem}
+    .dd-item{color:rgba(255,255,255,.65);padding:.38rem .65rem;border-radius:2px;font-size:.8rem;font-family:'Barlow',sans-serif;font-weight:500;display:flex;align-items:center;gap:.45rem;text-decoration:none;transition:all .1s}
+    .dd-item:hover{background:rgba(255,255,255,.07);color:#fff}
+    .dd-item.red{color:#f87171!important}
+    .dd-sep{border-color:var(--rule);margin:.3rem 0}
+    .notif-dot{width:6px;height:6px;background:var(--or);border-radius:50%;position:absolute;top:1px;right:0}
+    .av{width:26px;height:26px;background:var(--or);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;color:#fff;font-family:'Barlow Condensed',sans-serif}
+
+    /* ── BREADCRUMB ── */
+    .bc{background:var(--white);border-bottom:1px solid var(--border);padding:.5rem 0}
+    .bc .breadcrumb{margin:0;font-size:.75rem;font-family:'Barlow',sans-serif}
+    .bc .breadcrumb-item a{color:var(--or)}
+    .bc .breadcrumb-item.active{color:var(--muted)}
+    .bc .breadcrumb-item+.breadcrumb-item::before{color:var(--border)}
+
+    /* ── PAGE HEADER ── */
+    .pg-head{background:var(--blk);padding:2.5rem 0;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+    .pg-head::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+    .pg-head-inner{position:relative}
+    .pg-head-label{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+    .pg-head-label::before{content:'';width:14px;height:2px;background:var(--or)}
+    .pg-head h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:900;text-transform:uppercase;letter-spacing:-.01em;color:#fff;line-height:1;margin:0}
+    .pg-head p{color:rgba(255,255,255,.4);font-size:.85rem;margin-top:.5rem;margin-bottom:0}
+
+    /* ── CARDS ── */
+    .card-pr{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);box-shadow:var(--sh);transition:border-color .15s,box-shadow .15s,transform .15s}
+    .card-pr:hover{border-color:#ccc;box-shadow:var(--sh-md)}
+    .card-lift:hover{transform:translateY(-2px)}
+
+    /* ── BUTTONS ── */
+    .btn-pr{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--rad);border:none;font-size:.85rem;padding:.5rem 1.25rem;transition:all .12s;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem}
+    .btn-or{background:var(--or);color:#fff}
+    .btn-or:hover{background:var(--or-dark);color:#fff}
+    .btn-dk{background:var(--blk);color:#fff}
+    .btn-dk:hover{background:var(--blk3);color:#fff}
+    .btn-ghost{background:transparent;color:var(--or);border:1.5px solid var(--or)}
+    .btn-ghost:hover{background:var(--or);color:#fff}
+    .btn-lt{background:var(--lt2);color:var(--txt);border:1px solid var(--border)}
+    .btn-lt:hover{background:var(--border)}
+    .btn-sm-pr{padding:.3rem .8rem;font-size:.75rem}
+    .btn-lg-pr{padding:.7rem 1.75rem;font-size:.95rem}
+
+    /* ── BADGES ── */
+    .b{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .55rem;border-radius:2px;display:inline-flex;align-items:center;gap:.25rem}
+    .b-green{background:#d1fae5;color:#065f46}
+    .b-blue{background:#dbeafe;color:#1e40af}
+    .b-yellow{background:#fef3c7;color:#92400e}
+    .b-gray{background:#e5e7eb;color:#374151}
+    .b-red{background:#fee2e2;color:#991b1b}
+    .b-or{background:var(--or-dim);color:var(--or-dark)}
+
+    /* ── FORMS ── */
+    .f-label{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;display:block}
+    .f-input{border:1.5px solid var(--border);border-radius:var(--rad);padding:.55rem .8rem;font-size:.85rem;font-family:'Barlow',sans-serif;background:#fff;width:100%;transition:border-color .15s,box-shadow .15s;color:var(--txt)}
+    .f-input:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(255,92,0,.1);outline:none}
+    .f-input.is-invalid{border-color:#dc2626}
+    .f-error{font-size:.75rem;color:#dc2626;margin-top:.25rem;font-family:'Barlow',sans-serif}
+    select.f-input{cursor:pointer}
+
+    /* ── ALERTS ── */
+    .alert-pr{border:none;border-radius:var(--rad);font-size:.82rem;border-left:3px solid currentColor;font-family:'Barlow',sans-serif}
+
+    /* ── TABLES ── */
+    .tbl{width:100%;font-size:.82rem;font-family:'Barlow',sans-serif;border-collapse:collapse}
+    .tbl th{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.65rem .75rem;border-bottom:2px solid var(--border);white-space:nowrap}
+    .tbl td{padding:.65rem .75rem;border-bottom:1px solid var(--lt2);color:var(--txt);vertical-align:middle}
+    .tbl tr:last-child td{border-bottom:none}
+    .tbl tr:hover td{background:var(--lt)}
+
+    /* ── STATS ── */
+    .stat-box{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:1.1rem;display:flex;align-items:center;gap:.9rem}
+    .stat-icon{width:42px;height:42px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+    .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;line-height:1;color:var(--or)}
+    .stat-lbl{font-size:.72rem;color:var(--muted);font-weight:500;margin-top:.1rem}
+
+    /* ── SIDEBAR ── */
+    .sb{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden}
+    .sb-head{padding:.65rem 1rem;border-bottom:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+    .sb .nav-link{color:var(--txt);font-size:.82rem;font-family:'Barlow',sans-serif;font-weight:500;padding:.5rem 1rem;display:flex;align-items:center;gap:.55rem;border-radius:0;transition:all .1s}
+    .sb .nav-link i{width:14px;text-align:center;font-size:.82rem}
+    .sb .nav-link:hover,.sb .nav-link.on{color:var(--or);background:var(--or-dim)}
+
+    /* ── PAGINATION ── */
+    .pg-nav .page-link{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.04em;border:1.5px solid var(--border);border-radius:2px!important;margin:0 2px;font-size:.78rem;color:var(--txt)}
+    .pg-nav .page-item.active .page-link{background:var(--or);border-color:var(--or);color:#fff}
+    .pg-nav .page-link:hover{background:var(--or-dim);border-color:var(--or);color:var(--or-dark)}
+
+    /* ── FOOTER ── */
+    .footer-pr{background:var(--blk);border-top:1px solid var(--rule);padding:2.5rem 0 1.25rem;margin-top:auto}
+    .footer-brand{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:900;text-transform:uppercase;color:var(--or);display:flex;align-items:center;gap:.4rem;letter-spacing:.02em}
+    .footer-pr h6{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:.85rem}
+    .footer-pr a{color:rgba(255,255,255,.4);font-size:.82rem;transition:color .15s;display:flex;align-items:center;gap:.35rem}
+    .footer-pr a:hover{color:var(--or)}
+    .footer-pr hr{border-color:var(--rule)}
+
+    /* ── REVEAL ANIMATION ── */
+    .rv{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
+    .rv.vis{opacity:1;transform:none}
+    .rv-l{opacity:0;transform:translateX(-16px);transition:opacity .5s ease,transform .5s ease}
+    .rv-l.vis{opacity:1;transform:none}
+    .rv-r{opacity:0;transform:translateX(16px);transition:opacity .5s ease,transform .5s ease}
+    .rv-r.vis{opacity:1;transform:none}
+
+    /* ── MISC ── */
+    .sep-or{border-color:var(--or)}
+    .text-or{color:var(--or)!important}
+    .bg-blk{background:var(--blk)}
+    code,.mono{font-family:'Barlow Condensed',sans-serif;font-size:.85rem;letter-spacing:.03em}
+
+    @media(max-width:768px){
+        .pg-head h1{font-size:1.75rem}
+        .footer-pr .col-md-4{margin-bottom:1.5rem}
+    }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="rates">
+            {% if tasas_cambio and tasas_cambio.ok %}
+            <span><i class="bi bi-currency-dollar"></i>1 USD ≈ ${{ tasas_cambio.usd|floatformat:0 }} COP</span>
+            <span><i class="bi bi-currency-euro"></i>1 EUR ≈ ${{ tasas_cambio.eur|floatformat:0 }} COP</span>
+            {% else %}
+            <span>PowerRent — Alquiler profesional de equipos</span>
+            {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-1">
+            <form class="lang-form" action="{% url 'set_language' %}" method="post">{% csrf_token %}<input type="hidden" name="next" value="/"><input type="hidden" name="language" value="es"><button type="submit" class="lang-btn {% if LANGUAGE_CODE == 'es' %}on{% endif %}">ES</button></form>
+            <span class="lang-sep">|</span>
+            <form class="lang-form" action="{% url 'set_language' %}" method="post">{% csrf_token %}<input type="hidden" name="next" value="/en/"><input type="hidden" name="language" value="en"><button type="submit" class="lang-btn {% if LANGUAGE_CODE == 'en' %}on{% endif %}">EN</button></form>
+        </div>
+    </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="nav-pr">
+    <div class="container d-flex align-items-center gap-1">
+        <a class="nav-brand me-3" href="{% url 'core:home' %}">
+            <span class="bm"><i class="bi bi-lightning-charge-fill"></i></span>PowerRent
+        </a>
+        <button class="navbar-toggler border-0 ms-auto d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#nv" style="color:rgba(255,255,255,.6)"><i class="bi bi-list fs-4"></i></button>
+        <div class="collapse navbar-collapse d-lg-flex" id="nv">
+            <div class="d-flex align-items-center gap-1 flex-grow-1 flex-wrap mt-2 mt-lg-0">
+                <a class="nl" href="{% url 'equipos:lista' %}"><i class="bi bi-tools"></i>{% trans "Equipos" %}</a>
+                <a class="nl" href="{% url 'core:aliados' %}"><i class="bi bi-building"></i>{% trans "Aliados" %}</a>
+                {% if user.is_authenticated %}
+                <a class="nl" href="{% url 'reservas:mis_reservas' %}"><i class="bi bi-calendar-check"></i>{% trans "Mis Reservas" %}</a>
+                <a class="nl" href="{% url 'pagos:mis_pagos' %}"><i class="bi bi-credit-card"></i>{% trans "Mis Pagos" %}</a>
+                {% if user.es_administrador %}
+                <div class="dropdown">
+                    <a class="nl dropdown-toggle" style="color:#fbbf24!important" href="#" data-bs-toggle="dropdown"><i class="bi bi-grid-3x3-gap-fill"></i>{% trans "Gestión" %}</a>
+                    <ul class="dropdown-menu dd-menu">
+                        <li><a class="dd-item" href="{% url 'core:dashboard_admin' %}"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
+                        <li><hr class="dd-sep"></li>
+                        <li><a class="dd-item" href="{% url 'core:gestion_equipos' %}"><i class="bi bi-wrench-adjustable"></i>{% trans "Equipos" %}</a></li>
+                        <li><a class="dd-item" href="{% url 'core:gestion_categorias' %}"><i class="bi bi-tags"></i>{% trans "Categorías" %}</a></li>
+                        <li><a class="dd-item" href="{% url 'core:gestion_reservas' %}"><i class="bi bi-calendar3"></i>{% trans "Reservas" %}</a></li>
+                        <li><a class="dd-item" href="{% url 'core:gestion_usuarios' %}"><i class="bi bi-people"></i>{% trans "Usuarios" %}</a></li>
+                        <li><a class="dd-item" href="{% url 'core:gestion_bloqueos' %}"><i class="bi bi-slash-circle"></i>{% trans "Bloqueos" %}</a></li>
+                        <li><a class="dd-item" href="{% url 'core:gestion_pagos' %}"><i class="bi bi-cash-stack"></i>{% trans "Pagos" %}</a></li>
+                        <li><hr class="dd-sep"></li>
+                        <li><a class="dd-item" href="{% url 'core:reporte_equipos' %}?formato=excel"><i class="bi bi-file-earmark-excel" style="color:#22c55e"></i>Excel</a></li>
+                        <li><a class="dd-item" href="{% url 'core:reporte_equipos' %}?formato=pdf"><i class="bi bi-file-earmark-pdf" style="color:#ef4444"></i>PDF</a></li>
+                    </ul>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="d-flex align-items-center gap-1 mt-2 mt-lg-0">
+                {% if user.is_authenticated %}
+                <a class="nl position-relative" href="{% url 'core:notificaciones' %}"><i class="bi bi-bell"></i>{% if notificaciones_no_leidas > 0 %}<span class="notif-dot"></span>{% endif %}</a>
+                <div class="dropdown">
+                    <a class="nl dropdown-toggle gap-2" href="#" data-bs-toggle="dropdown">
+                        <span class="av">{{ user.get_full_name|default:user.username|slice:":2"|upper }}</span>
+                        <span class="d-none d-xl-inline">{{ user.get_full_name|default:user.username|truncatechars:14 }}</span>
+                        {% if user.es_administrador %}<span style="background:#d97706;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:2px;letter-spacing:.05em;">ADMIN</span>{% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dd-menu">
+                        <li><a class="dd-item" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person-circle"></i>{% trans "Mi Perfil" %}</a></li>
+                        <li><a class="dd-item" href="{% url 'core:notificaciones' %}"><i class="bi bi-bell"></i>{% trans "Notificaciones" %}{% if notificaciones_no_leidas > 0 %}<span style="background:var(--or);color:#fff;border-radius:2px;font-size:.6rem;padding:.1rem .3rem;margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;">{{ notificaciones_no_leidas }}</span>{% endif %}</a></li>
+                        <li><hr class="dd-sep"></li>
+                        <li><form method="post" action="{% url 'usuarios:logout' %}">{% csrf_token %}<button type="submit" class="dd-item red w-100 text-start border-0" style="background:none"><i class="bi bi-box-arrow-right"></i>{% trans "Cerrar Sesión" %}</button></form></li>
+                    </ul>
+                </div>
+                {% else %}
+                <a class="nl" href="{% url 'usuarios:login' %}"><i class="bi bi-box-arrow-in-right"></i>{% trans "Iniciar Sesión" %}</a>
+                <a class="nl nl-cta" href="{% url 'usuarios:registro' %}">{% trans "Registrarse" %}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+{% block breadcrumb %}{% endblock %}
+
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-pr alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center gap-2 rv"
+         style="border-left-color:{% if message.tags == 'success' %}#059669{% elif message.tags == 'error' or message.tags == 'danger' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#2563eb{% endif %}">
+        {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill text-success flex-shrink-0"></i>
+        {% elif 'error' in message.tags or 'danger' in message.tags %}<i class="bi bi-x-circle-fill text-danger flex-shrink-0"></i>
+        {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill text-warning flex-shrink-0"></i>
+        {% else %}<i class="bi bi-info-circle-fill text-primary flex-shrink-0"></i>{% endif %}
+        <span>{{ message }}</span>
+        <button type="button" class="btn-close ms-auto btn-sm" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="footer-pr">
+    <div class="container">
+        <div class="row g-4 mb-3">
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-brand mb-3"><i class="bi bi-lightning-charge-fill"></i>PowerRent</div>
+                <p style="color:rgba(255,255,255,.3);font-size:.82rem;line-height:1.7;max-width:280px">Plataforma de alquiler de equipos de construcción profesional en Colombia.</p>
+            </div>
+            <div class="col-lg-2 col-md-3 col-6">
+                <h6>{% trans "Navegación" %}</h6>
+                <div class="d-flex flex-column gap-2">
+                    <a href="{% url 'equipos:lista' %}"><i class="bi bi-chevron-right"></i>{% trans "Equipos" %}</a>
+                    <a href="{% url 'core:aliados' %}"><i class="bi bi-chevron-right"></i>{% trans "Aliados" %}</a>
+                    <a href="{% url 'core:sobre_nosotros' %}"><i class="bi bi-chevron-right"></i>{% trans "Sobre Nosotros" %}</a>
+                    {% if user.is_authenticated %}<a href="{% url 'reservas:mis_reservas' %}"><i class="bi bi-chevron-right"></i>{% trans "Mis Reservas" %}</a>{% endif %}
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-6">
+                <h6>{% trans "Contacto" %}</h6>
+                <div class="d-flex flex-column gap-2">
+                    <a href="tel:+573001234567"><i class="bi bi-telephone"></i>+57 300 123 4567</a>
+                    <a href="mailto:info@powerrent.co"><i class="bi bi-envelope"></i>info@powerrent.co</a>
+                    <a href="#"><i class="bi bi-geo-alt"></i>Bogotá, Colombia</a>
+                    <a href="#"><i class="bi bi-clock"></i>Lun–Sáb 7am–7pm</a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h6>API</h6>
+                <p style="color:rgba(255,255,255,.3);font-size:.8rem;line-height:1.5;margin-bottom:.75rem">Consume nuestro servicio JSON de equipos disponibles.</p>
+                <a href="/api/equipos/" target="_blank" style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.06em;background:rgba(255,255,255,.05);border:1px solid var(--rule);padding:.3rem .7rem;border-radius:2px;color:rgba(255,255,255,.4);display:inline-block">GET /api/equipos/</a>
+            </div>
+        </div>
+        <hr>
+        <p class="text-center mb-0" style="font-size:.72rem;color:rgba(255,255,255,.2);font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase">&copy; 2025 PowerRent — Todos los derechos reservados</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Global scroll reveal
+const _rv = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){e.target.classList.add('vis');_rv.unobserve(e.target)} }), {threshold:.06});
+document.querySelectorAll('.rv,.rv-l,.rv-r').forEach(el => _rv.observe(el));
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

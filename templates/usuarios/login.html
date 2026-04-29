@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Iniciar Sesión" %}{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 120px);display:flex;align-items:center;background:var(--lt)">
+<div class="container py-5">
+<div class="row justify-content-center">
+<div class="col-lg-9 col-xl-7">
+<div class="card-pr overflow-hidden rv" style="display:grid;grid-template-columns:1fr 1fr;min-height:480px">
+    <!-- Left dark panel -->
+    <div style="background:var(--blk);padding:2.5rem 2rem;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--rule);position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.04) 1px,transparent 1px);background-size:35px 35px;pointer-events:none"></div>
+        <div style="position:relative">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--or);text-transform:uppercase;letter-spacing:.02em;margin-bottom:.4rem">PowerRent</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:2rem">Alquiler Profesional</div>
+            <div style="display:flex;flex-direction:column;gap:.9rem">
+                {% for t in "123"|make_list %}
+                <div style="background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:2px;padding:.55rem .75rem;font-size:.75rem;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:.5rem">
+                    {% if forloop.counter == 1 %}<i class="bi bi-lightning-charge" style="color:var(--or)"></i>Reserva instantánea
+                    {% elif forloop.counter == 2 %}<i class="bi bi-shield-check" style="color:#10b981"></i>Equipos garantizados
+                    {% else %}<i class="bi bi-headset" style="color:#3b82f6"></i>Soporte 24/7{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Right form -->
+    <div style="padding:2.5rem 2rem;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem">Acceso</div>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:.25rem">Bienvenido</h2>
+        <p style="color:var(--muted);font-size:.82rem;margin-bottom:1.75rem">Ingresa a tu cuenta</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label class="f-label">{{ field.label }}</label>
+                <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
+                       value="{{ field.value|default:'' }}"
+                       class="f-input {% if field.errors %}is-invalid{% endif %}"
+                       placeholder="{{ field.label }}" {% if field.field.required %}required{% endif %}>
+                {% if field.errors %}<div class="f-error">{{ field.errors|join:", " }}</div>{% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}<div class="f-error mb-3">{{ form.non_field_errors|join:", " }}</div>{% endif %}
+            <button type="submit" class="btn-pr btn-or w-100 justify-content-center mt-1">{% trans "Iniciar Sesión" %}</button>
+        </form>
+        <p style="text-align:center;font-size:.8rem;color:var(--muted);margin-top:1.25rem">¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}" style="color:var(--or);font-weight:600">{% trans "Registrarse" %}</a></p>
+    </div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+{% block extra_css %}<style>@media(max-width:600px){.card-pr{grid-template-columns:1fr!important}.card-pr>div:first-child{display:none!important}}</style>{% endblock %}

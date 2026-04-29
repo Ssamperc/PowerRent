@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ categoria.nombre }} - PowerRent{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-warning">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'equipos:lista' %}" class="text-warning">Equipos</a></li>
+            <li class="breadcrumb-item active">{{ categoria.nombre }}</li>
+        </ol>
+    </nav>
+    <h2 class="fw-bold mb-2">{{ categoria.nombre }}</h2>
+    <p class="text-muted mb-4">{{ categoria.descripcion }}</p>
+
+    <div class="row g-4">
+        {% for equipo in equipos %}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height:160px;font-size:3rem;">🔧</div>
+                <div class="card-body">
+                    {% if equipo.disponible %}<span class="badge bg-success mb-1">Disponible</span>{% else %}<span class="badge bg-secondary mb-1">No disponible</span>{% endif %}
+                    <h6 class="fw-bold mt-1">{{ equipo.nombre }}</h6>
+                    <p class="text-muted small">{{ equipo.descripcion|truncatewords:10 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-warning">${{ equipo.precio_por_dia|floatformat:0 }}/día</span>
+                        <a href="{% url 'equipos:detalle' equipo.slug %}" class="btn btn-outline-warning btn-sm">Ver más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="fs-1">📦</div>
+            <h5 class="mt-3">No hay equipos en esta categoría</h5>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
