@@ -1,27 +1,157 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block breadcrumb %}<nav class="bc"><div class="container-fluid px-4"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item"><a href="{% url 'core:dashboard_admin' %}">Dashboard</a></li>{% block bc_items %}{% endblock %}</ol></div></nav>{% endblock %}
-{% block content %}
-<div class="container-fluid py-4 px-3 px-md-4">
-<div class="row g-4">
-    <div class="col-xl-2 col-lg-3 d-none d-lg-block">
-        <div class="sb">
-            <div class="sb-head">Administración</div>
-            <a href="{% url 'core:dashboard_admin' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard_admin' %}on{% endif %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
-            <a href="{% url 'core:gestion_equipos' %}" class="nav-link {% if 'equipo' in request.resolver_match.url_name|default:'' %}on{% endif %}"><i class="bi bi-wrench-adjustable"></i>{% trans "Equipos" %}</a>
-            <a href="{% url 'core:gestion_categorias' %}" class="nav-link {% if 'categor' in request.resolver_match.url_name|default:'' %}on{% endif %}"><i class="bi bi-tags"></i>{% trans "Categorías" %}</a>
-            <a href="{% url 'core:gestion_reservas' %}" class="nav-link {% if 'reserva' in request.resolver_match.url_name|default:'' %}on{% endif %}"><i class="bi bi-calendar3"></i>{% trans "Reservas" %}</a>
-            <a href="{% url 'core:gestion_usuarios' %}" class="nav-link {% if 'usuario' in request.resolver_match.url_name|default:'' %}on{% endif %}"><i class="bi bi-people"></i>{% trans "Usuarios" %}</a>
-            <a href="{% url 'core:gestion_bloqueos' %}" class="nav-link {% if 'bloqueo' in request.resolver_match.url_name|default:'' %}on{% endif %}"><i class="bi bi-slash-circle"></i>{% trans "Bloqueos" %}</a>
-            <a href="{% url 'core:gestion_pagos' %}" class="nav-link {% if 'pago' in request.resolver_match.url_name|default:'' %}on{% endif %}"><i class="bi bi-cash-stack"></i>{% trans "Pagos" %}</a>
-            <div class="px-3 py-1"><hr style="border-color:var(--border);margin:.3rem 0"></div>
-            <a href="{% url 'core:reporte_equipos' %}?formato=excel" class="nav-link" style="color:#059669"><i class="bi bi-file-earmark-excel"></i>Excel</a>
-            <a href="{% url 'core:reporte_equipos' %}?formato=pdf" class="nav-link" style="color:#dc2626"><i class="bi bi-file-earmark-pdf"></i>PDF</a>
-        </div>
+{% block breadcrumb %}
+<nav class="bc">
+    <div class="container-fluid px-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:dashboard_admin' %}">Dashboard</a></li>
+            {% block bc_items %}{% endblock %}
+        </ol>
     </div>
-    <div class="col-xl-10 col-lg-9">
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── ADMIN LAYOUT ── */
+.admin-wrap{display:flex;gap:0;min-height:calc(100vh - 120px)}
+.admin-sidebar{width:220px;flex-shrink:0;background:var(--blk);border-right:1px solid var(--rule);padding:1rem 0;position:sticky;top:60px;max-height:calc(100vh - 60px);overflow-y:auto;display:none}
+@media(min-width:992px){.admin-sidebar{display:block}}
+.admin-content{flex:1;padding:1.75rem 2rem;min-width:0}
+@media(max-width:768px){.admin-content{padding:1rem}}
+
+/* ── SIDEBAR NAV ── */
+.sidebar-section{margin-bottom:.25rem}
+.sidebar-label{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);padding:.4rem 1rem .2rem;display:block}
+.sidebar-link{display:flex;align-items:center;gap:.55rem;padding:.5rem 1rem;font-size:.8rem;font-family:'Barlow',sans-serif;color:rgba(255,255,255,.45);text-decoration:none;transition:all .15s;position:relative;border-left:2px solid transparent}
+.sidebar-link:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.04);border-left-color:rgba(255,92,0,.5)}
+.sidebar-link.active{color:var(--or)!important;background:rgba(255,92,0,.08);border-left-color:var(--or)}
+.sidebar-link i{width:14px;text-align:center;font-size:.82rem}
+.sidebar-divider{border-color:var(--rule);margin:.5rem 1rem}
+
+/* ── ADMIN CONTENT ── */
+.admin-page-title{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;color:var(--txt);margin:0}
+.admin-page-sub{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+.admin-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+
+/* ── STAT CARDS ── */
+.stat-card-pr{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.25rem;display:flex;align-items:center;gap:1rem;transition:all .2s;position:relative;overflow:hidden}
+.stat-card-pr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--or);transform:scaleX(0);transition:transform .2s;transform-origin:left}
+.stat-card-pr:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px)}
+.stat-card-pr:hover::after{transform:scaleX(1)}
+.stat-icon{width:46px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.stat-value{font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;line-height:1}
+.stat-label{font-size:.72rem;color:var(--muted);font-weight:500;margin-top:.1rem;font-family:'Barlow',sans-serif}
+.text-orange{color:#FF5C00}
+
+/* ── CARDS ── */
+.card-pr{background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+
+/* ── TABLES ── */
+.table-admin{font-size:.82rem;font-family:'Barlow',sans-serif}
+.table-admin th{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.7rem .75rem;border-bottom:2px solid var(--border);white-space:nowrap;background:var(--lt)}
+.table-admin td{padding:.65rem .75rem;border-bottom:1px solid var(--lt2);vertical-align:middle}
+.table-admin tr:last-child td{border-bottom:none}
+.table-admin tr:hover td{background:#fffcf9}
+
+/* ── BADGES ── */
+.badge-pr{font-family:'Barlow Condensed',sans-serif;font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:.22rem .55rem;border-radius:3px;display:inline-flex;align-items:center;gap:.25rem}
+.badge-disponible{background:#d1fae5;color:#065f46}
+.badge-alquilado,.badge-activa,.badge-confirmada{background:#dbeafe;color:#1e40af}
+.badge-mantenimiento{background:#fef3c7;color:#92400e}
+.badge-pendiente{background:#fef3c7;color:#92400e}
+.badge-completada{background:#d1fae5;color:#065f46}
+.badge-cancelada,.badge-inactivo{background:#fee2e2;color:#991b1b}
+.badge-vencida{background:#fee2e2;color:#991b1b}
+
+/* ── BUTTONS ── */
+.btn-pr-primary{background:var(--or);color:#fff;border:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:.8rem;padding:.45rem 1rem;border-radius:4px;display:inline-flex;align-items:center;gap:.35rem;cursor:pointer;transition:all .2s;text-decoration:none}
+.btn-pr-primary:hover{background:var(--or-dark);color:#fff;box-shadow:0 4px 16px rgba(255,92,0,.35);transform:translateY(-1px)}
+.btn-pr-outline{background:transparent;color:var(--txt);border:1.5px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:.8rem;padding:.4rem .9rem;border-radius:4px;display:inline-flex;align-items:center;gap:.35rem;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn-pr-outline:hover{border-color:var(--or);color:var(--or);background:var(--or-dim)}
+.btn-xs{font-size:.72rem;padding:.2rem .55rem;border-radius:4px}
+
+/* ── ALERT ── */
+.alert-pr-dash{border:none;border-radius:6px;font-size:.82rem;border-left:3px solid #dc2626;font-family:'Barlow',sans-serif;padding:.65rem 1rem;background:#fff5f5;color:#991b1b}
+
+/* ── MOBILE SIDEBAR TOGGLE ── */
+.mobile-sidebar-btn{display:flex;align-items:center;gap:.5rem;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--blk);color:rgba(255,255,255,.6);border:none;border-radius:4px;padding:.45rem .85rem;cursor:pointer;margin-bottom:1rem;transition:all .15s}
+.mobile-sidebar-btn:hover{color:#fff}
+@media(min-width:992px){.mobile-sidebar-btn{display:none}}
+</style>
+{% block admin_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrap">
+
+    <!-- SIDEBAR -->
+    <div class="admin-sidebar">
+        <span class="sidebar-label">Principal</span>
+        <a href="{% url 'core:dashboard_admin' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i>Dashboard
+        </a>
+
+        <span class="sidebar-label" style="margin-top:.5rem">Inventario</span>
+        <a href="{% url 'core:gestion_equipos' %}" class="sidebar-link {% if 'equipo' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+            <i class="bi bi-wrench-adjustable"></i>{% trans "Equipos" %}
+        </a>
+        <a href="{% url 'core:gestion_categorias' %}" class="sidebar-link {% if 'categor' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+            <i class="bi bi-tags"></i>{% trans "Categorías" %}
+        </a>
+        <a href="{% url 'core:gestion_bloqueos' %}" class="sidebar-link {% if 'bloqueo' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+            <i class="bi bi-slash-circle"></i>{% trans "Bloqueos" %}
+        </a>
+
+        <span class="sidebar-label" style="margin-top:.5rem">Operaciones</span>
+        <a href="{% url 'core:gestion_reservas' %}" class="sidebar-link {% if 'reserva' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+            <i class="bi bi-calendar3"></i>{% trans "Reservas" %}
+        </a>
+        <a href="{% url 'core:gestion_usuarios' %}" class="sidebar-link {% if 'usuario' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+            <i class="bi bi-people"></i>{% trans "Usuarios" %}
+        </a>
+        <a href="{% url 'core:gestion_pagos' %}" class="sidebar-link {% if 'pago' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+            <i class="bi bi-cash-stack"></i>{% trans "Pagos" %}
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <a href="{% url 'core:reporte_equipos' %}?formato=excel" class="sidebar-link" style="color:#10b981">
+            <i class="bi bi-file-earmark-excel"></i>Exportar Excel
+        </a>
+        <a href="{% url 'core:reporte_equipos' %}?formato=pdf" class="sidebar-link" style="color:#ef4444">
+            <i class="bi bi-file-earmark-pdf"></i>Exportar PDF
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <a href="{% url 'core:home' %}" class="sidebar-link">
+            <i class="bi bi-eye"></i>Ver sitio
+        </a>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="admin-content">
+        <button class="mobile-sidebar-btn" data-bs-toggle="collapse" data-bs-target="#mobile-nav">
+            <i class="bi bi-list"></i>Menú admin
+        </button>
+        <div class="collapse d-lg-none mb-3" id="mobile-nav">
+            <div style="background:var(--blk);border-radius:6px;padding:.5rem 0">
+                <a href="{% url 'core:dashboard_admin' %}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>Dashboard
+                </a>
+                <a href="{% url 'core:gestion_equipos' %}" class="sidebar-link"><i class="bi bi-wrench-adjustable"></i>Equipos</a>
+                <a href="{% url 'core:gestion_categorias' %}" class="sidebar-link"><i class="bi bi-tags"></i>Categorías</a>
+                <a href="{% url 'core:gestion_reservas' %}" class="sidebar-link"><i class="bi bi-calendar3"></i>Reservas</a>
+                <a href="{% url 'core:gestion_usuarios' %}" class="sidebar-link"><i class="bi bi-people"></i>Usuarios</a>
+                <a href="{% url 'core:gestion_bloqueos' %}" class="sidebar-link"><i class="bi bi-slash-circle"></i>Bloqueos</a>
+                <a href="{% url 'core:gestion_pagos' %}" class="sidebar-link"><i class="bi bi-cash-stack"></i>Pagos</a>
+            </div>
+        </div>
+
         {% block gestion_content %}{% endblock %}
     </div>
-</div>
+
 </div>
 {% endblock %}

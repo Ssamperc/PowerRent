@@ -1,37 +1,153 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}Reservar {{ equipo.nombre }}{% endblock %}
-{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item"><a href="{% url 'equipos:lista' %}">Equipos</a></li><li class="breadcrumb-item"><a href="{% url 'equipos:detalle' equipo.slug %}">{{ equipo.nombre }}</a></li><li class="breadcrumb-item active">Reservar</li></ol></div></nav>{% endblock %}
+{% block breadcrumb %}
+<nav class="bc"><div class="container"><ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'equipos:lista' %}">Equipos</a></li>
+<li class="breadcrumb-item"><a href="{% url 'equipos:detalle' equipo.slug %}">{{ equipo.nombre }}</a></li>
+<li class="breadcrumb-item active">Reservar</li>
+</ol></div></nav>
+{% endblock %}
+{% block extra_css %}
+<style>
+.reserva-page{background:var(--lt);min-height:calc(100vh - 120px);padding:3rem 0}
+.reserva-layout{display:grid;grid-template-columns:1fr 380px;gap:1.75rem;align-items:start}
+@media(max-width:900px){.reserva-layout{grid-template-columns:1fr}}
+
+/* FORM CARD */
+.form-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.form-card-header{background:var(--blk);padding:1.25rem 1.5rem;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.form-card-header::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.04) 1px,transparent 1px);background-size:25px 25px}
+.form-card-header::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent)}
+.form-card-title{position:relative;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:900;text-transform:uppercase;color:#fff;margin:0}
+.form-card-sub{position:relative;font-size:.75rem;color:rgba(255,255,255,.35);margin-top:.2rem}
+.form-card-body{padding:1.5rem}
+
+.f-step{display:flex;align-items:center;gap:.65rem;margin-bottom:1.5rem}
+.f-step-num{width:28px;height:28px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 0 12px rgba(255,92,0,.35)}
+.f-step-label{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt)}
+.f-label-rg{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem;display:block}
+.f-input-rg{border:1.5px solid var(--border);border-radius:6px;padding:.6rem .9rem;font-size:.85rem;font-family:'Barlow',sans-serif;background:#fff;width:100%;transition:all .2s;color:var(--txt)}
+.f-input-rg:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(255,92,0,.1);outline:none}
+.f-input-rg.is-invalid{border-color:#dc2626}
+.f-error{font-size:.73rem;color:#dc2626;margin-top:.25rem;display:flex;align-items:center;gap:.3rem}
+.f-hint{font-size:.7rem;color:var(--muted);margin-top:.2rem}
+
+.submit-reserva{background:var(--or);color:#fff;border:none;border-radius:6px;padding:.9rem 2rem;width:100%;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 4px 24px rgba(255,92,0,.4);margin-top:.5rem}
+.submit-reserva:hover{background:var(--or-dark);box-shadow:0 6px 36px rgba(255,92,0,.55);transform:translateY(-2px)}
+.submit-reserva:active{transform:translateY(0)}
+
+/* SUMMARY CARD */
+.summary-card{background:var(--blk);border-radius:10px;border:1px solid var(--rule);overflow:hidden;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent)}
+.summary-img{width:100%;height:180px;object-fit:cover;display:block;border-bottom:1px solid var(--rule)}
+.summary-noimg{width:100%;height:180px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:2rem;color:rgba(255,255,255,.15)}
+.summary-body{padding:1.25rem}
+.summary-cat{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--or);margin-bottom:.3rem}
+.summary-name{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:900;text-transform:uppercase;color:#fff;margin-bottom:1rem;line-height:1.1}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--rule)}
+.summary-row:last-child{border-bottom:none;padding-top:.85rem;margin-top:.35rem}
+.summary-key{font-size:.77rem;color:rgba(255,255,255,.35);font-family:'Barlow',sans-serif}
+.summary-val{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:700;color:#fff;text-align:right}
+.summary-val.total{color:var(--or);font-size:1.3rem;text-shadow:0 0 20px rgba(255,92,0,.4)}
+.summary-note{font-size:.72rem;color:rgba(255,255,255,.25);text-align:center;padding:.85rem 1.25rem;border-top:1px solid var(--rule);line-height:1.55}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="pg-head"><div class="container pg-head-inner"><div class="pg-head-label">Nueva reserva</div><h1>{{ equipo.nombre }}</h1><p>${{ equipo.precio_por_dia|floatformat:0 }}/día — {{ equipo.categoria.nombre }}</p></div></div>
-<div class="container py-4">
-<div class="row justify-content-center">
-<div class="col-lg-6">
-    <div class="card-pr p-4 rv">
-        <div style="background:var(--blk);border-radius:2px;padding:1rem;margin-bottom:1.5rem;font-size:.82rem">
-            <div class="d-flex justify-content-between mb-1"><span style="color:rgba(255,255,255,.3)">Categoría</span><span style="color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase">{{ equipo.categoria.nombre }}</span></div>
-            <div class="d-flex justify-content-between mb-1"><span style="color:rgba(255,255,255,.3)">Código</span><span style="color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700">{{ equipo.codigo_interno }}</span></div>
-            {% if equipo.deposito_garantia > 0 %}<div class="d-flex justify-content-between"><span style="color:rgba(255,255,255,.3)">Depósito</span><span style="color:var(--or);font-family:'Barlow Condensed',sans-serif;font-weight:700">${{ equipo.deposito_garantia|floatformat:0 }}</span></div>{% endif %}
-        </div>
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {% for field in form %}
-            <div class="mb-3">
-                <label class="f-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
-                <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
-                       value="{{ field.value|default:'' }}" class="f-input {% if field.errors %}is-invalid{% endif %}"
-                       {% if field.field.required %}required{% endif %}>
-                {% if field.errors %}<div class="f-error">{{ field.errors|join:", " }}</div>{% endif %}
-                {% if field.help_text %}<div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">{{ field.help_text }}</div>{% endif %}
-            </div>
-            {% endfor %}
-            {% if form.non_field_errors %}<div class="f-error mb-3">{{ form.non_field_errors|join:", " }}</div>{% endif %}
-            <div class="d-flex gap-2 mt-3">
-                <button type="submit" class="btn-pr btn-or flex-grow-1 justify-content-center"><i class="bi bi-calendar-plus"></i>Confirmar Reserva</button>
-                <a href="{% url 'equipos:detalle' equipo.slug %}" class="btn-pr btn-lt">Cancelar</a>
-            </div>
-        </form>
+<div class="pg-head">
+    <div class="container pg-head-inner">
+        <div class="pg-head-label">Nueva reserva</div>
+        <h1>{{ equipo.nombre }}</h1>
+        <p>${{ equipo.precio_por_dia|floatformat:0 }}/día — {{ equipo.categoria.nombre }}</p>
     </div>
+</div>
+
+<div class="reserva-page">
+<div class="container">
+<div class="reserva-layout">
+
+    <!-- FORM -->
+    <div class="form-card rv-l">
+        <div class="form-card-header">
+            <div class="form-card-title"><i class="bi bi-calendar-plus me-2"></i>Crear reserva</div>
+            <div class="form-card-sub">Selecciona las fechas para tu alquiler</div>
+        </div>
+        <div class="form-card-body">
+            <form method="post" novalidate id="reserva-form">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="f-label-rg">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    <input type="{{ field.field.widget.input_type }}"
+                           name="{{ field.html_name }}"
+                           id="{{ field.id_for_label }}"
+                           value="{{ field.value|default:'' }}"
+                           class="f-input-rg {% if field.errors %}is-invalid{% endif %}"
+                           {% if field.field.required %}required{% endif %}>
+                    {% if field.errors %}
+                    <div class="f-error"><i class="bi bi-exclamation-circle"></i>{{ field.errors|join:", " }}</div>
+                    {% endif %}
+                    {% if field.help_text %}
+                    <div class="f-hint">{{ field.help_text }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                <div class="f-error mb-3"><i class="bi bi-exclamation-circle"></i>{{ form.non_field_errors|join:", " }}</div>
+                {% endif %}
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="submit-reserva">
+                        <i class="bi bi-calendar-check"></i>Confirmar Reserva
+                    </button>
+                    <a href="{% url 'equipos:detalle' equipo.slug %}" class="btn-pr btn-lt" style="border-radius:6px;flex-shrink:0">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="rv-r">
+        <div class="summary-card">
+            {% if equipo.imagen_principal %}
+            <img src="{{ equipo.imagen_principal.url }}" alt="{{ equipo.nombre }}" class="summary-img">
+            {% else %}
+            <div class="summary-noimg"><i class="bi bi-image"></i></div>
+            {% endif %}
+            <div class="summary-body">
+                <div class="summary-cat">{{ equipo.categoria.nombre }}</div>
+                <div class="summary-name">{{ equipo.nombre }}</div>
+                <div class="summary-row">
+                    <span class="summary-key">Precio por día</span>
+                    <span class="summary-val">${{ equipo.precio_por_dia|floatformat:0 }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-key">Código</span>
+                    <span class="summary-val">{{ equipo.codigo_interno }}</span>
+                </div>
+                {% if equipo.deposito_garantia > 0 %}
+                <div class="summary-row">
+                    <span class="summary-key">Depósito (reembolsable)</span>
+                    <span class="summary-val">${{ equipo.deposito_garantia|floatformat:0 }}</span>
+                </div>
+                {% endif %}
+                <div class="summary-row">
+                    <span class="summary-key">Estado</span>
+                    <span class="summary-val" style="color:#10b981"><i class="bi bi-check-circle-fill me-1"></i>Disponible</span>
+                </div>
+            </div>
+            <div class="summary-note">
+                <i class="bi bi-shield-check me-1" style="color:var(--or)"></i>
+                Reserva segura — Confirmación automática instantánea
+            </div>
+        </div>
+    </div>
+
 </div>
 </div>
 </div>

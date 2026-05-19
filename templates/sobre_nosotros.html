@@ -1,46 +1,220 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}Sobre Nosotros{% endblock %}
-{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">Sobre Nosotros</li></ol></div></nav>{% endblock %}
+{% block breadcrumb %}
+<nav class="bc"><div class="container"><ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+<li class="breadcrumb-item active">Sobre Nosotros</li>
+</ol></div></nav>
+{% endblock %}
+{% block extra_css %}
+<style>
+/* ── ABOUT HERO ── */
+.about-hero{background:var(--blk);padding:4rem 0;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.about-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.03) 1px,transparent 1px);background-size:40px 40px}
+.about-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--or),transparent)}
+.about-hero-inner{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.about-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--or);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.about-eyebrow::before,.about-eyebrow::after{content:'';width:16px;height:2px;background:var(--or)}
+.about-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:900;text-transform:uppercase;letter-spacing:-.02em;color:#fff;line-height:.95;margin-bottom:1.25rem}
+.about-title span{color:var(--or);text-shadow:0 0 40px rgba(255,92,0,.4)}
+.about-sub{color:rgba(255,255,255,.4);font-size:.92rem;line-height:1.7;max-width:520px}
+
+/* ── MISSION ── */
+.mission-sec{padding:5rem 0}
+.label-sm{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem;display:flex;align-items:center;gap:.45rem}
+.label-sm::before{content:'';width:14px;height:2px;background:var(--or);flex-shrink:0}
+.title-lg{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.6rem,2.8vw,2.4rem);font-weight:900;text-transform:uppercase;letter-spacing:-.01em;line-height:1;margin-bottom:1rem}
+.body-txt{color:var(--muted);font-size:.9rem;line-height:1.8}
+
+/* ── STATS GRID ── */
+.about-stat{background:var(--blk);border-radius:8px;padding:1.75rem;border:1px solid var(--rule);text-align:left;position:relative;overflow:hidden;transition:all .25s}
+.about-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--or);transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.about-stat:hover{border-color:rgba(255,92,0,.3);transform:translateY(-3px)}
+.about-stat:hover::before{transform:scaleX(1)}
+.about-stat-num{font-family:'Barlow Condensed',sans-serif;font-size:2.4rem;font-weight:900;color:var(--or);line-height:1;text-shadow:0 0 30px rgba(255,92,0,.3)}
+.about-stat-label{font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── VALUES ── */
+.values-sec{background:var(--lt2);padding:5rem 0}
+.value-card{background:#fff;border-radius:8px;border:1px solid var(--border);border-left:3px solid var(--or);padding:1.5rem;height:100%;transition:all .22s}
+.value-card:hover{box-shadow:0 12px 40px rgba(0,0,0,.1);transform:translateY(-3px)}
+.value-icon{font-size:1.5rem;color:var(--or);margin-bottom:.85rem;transition:transform .2s}
+.value-card:hover .value-icon{transform:scale(1.15) rotate(-5deg)}
+.value-title{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--txt);margin-bottom:.45rem}
+.value-txt{font-size:.82rem;color:var(--muted);line-height:1.65}
+
+/* ── TIMELINE ── */
+.timeline-sec{padding:5rem 0;background:var(--blk)}
+.timeline-item{display:flex;gap:1.5rem;padding-bottom:2rem;position:relative}
+.timeline-item::before{content:'';position:absolute;left:19px;top:36px;bottom:0;width:1px;background:var(--rule)}
+.timeline-item:last-child::before{display:none}
+.tl-dot{width:40px;height:40px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:900;flex-shrink:0;box-shadow:0 0 20px rgba(255,92,0,.35)}
+.tl-content{flex:1;padding-top:.5rem}
+.tl-year{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--or);margin-bottom:.2rem}
+.tl-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;text-transform:uppercase;color:#fff;margin-bottom:.35rem}
+.tl-txt{font-size:.8rem;color:rgba(255,255,255,.35);line-height:1.6}
+
+/* ── CTA ── */
+.about-cta{background:var(--or);padding:3.5rem 0;text-align:center;position:relative;overflow:hidden}
+.about-cta::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:25px 25px}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="pg-head"><div class="container pg-head-inner"><div class="pg-head-label">Nuestra historia</div><h1>Sobre PowerRent</h1><p>Líderes en alquiler de equipos de construcción en Colombia</p></div></div>
-<div class="container py-5">
-<div class="row g-5 align-items-center mb-5">
+
+<!-- ABOUT HERO -->
+<section class="about-hero">
+    <div class="container about-hero-inner">
+        <div class="about-eyebrow">Nuestra historia</div>
+        <h1 class="about-title">Sobre <span>PowerRent</span></h1>
+        <p class="about-sub">Líderes en alquiler de equipos de construcción profesional en Colombia. Desde 2019 facilitando el acceso a maquinaria de calidad.</p>
+    </div>
+</section>
+
+<!-- MISSION -->
+<section class="mission-sec">
+<div class="container">
+<div class="row g-5 align-items-center">
     <div class="col-lg-6 rv-l">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem;display:flex;align-items:center;gap:.45rem"><span style="width:14px;height:2px;background:var(--or);display:inline-block"></span>Misión</div>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:1rem">Democratizamos el acceso a equipos profesionales</h2>
-        <p style="color:var(--muted);font-size:.9rem;line-height:1.75;margin-bottom:1rem">PowerRent nació con la misión de eliminar la barrera de compra de maquinaria costosa. Ofrecemos alquiler flexible con reserva instantánea online, para que contratistas y constructores accedan al equipo que necesitan, cuando lo necesitan.</p>
-        <p style="color:var(--muted);font-size:.9rem;line-height:1.75">Somos la primera plataforma en Colombia que automatiza completamente el proceso de alquiler: desde la búsqueda hasta la confirmación de la reserva, sin llamadas ni papeleos.</p>
+        <div class="label-sm">Misión</div>
+        <h2 class="title-lg">Democratizamos el acceso a equipos profesionales</h2>
+        <p class="body-txt mb-3">PowerRent nació con la misión de eliminar la barrera de compra de maquinaria costosa. Ofrecemos alquiler flexible con reserva instantánea online, para que contratistas y constructores accedan al equipo que necesitan, cuando lo necesitan.</p>
+        <p class="body-txt">Somos la primera plataforma en Colombia que automatiza completamente el proceso de alquiler: desde la búsqueda hasta la confirmación de la reserva, sin llamadas ni papeleos.</p>
     </div>
     <div class="col-lg-6 rv-r">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-            {% for item in "1234"|make_list %}
-            <div style="background:var(--blk);border-radius:2px;padding:1.5rem;border:1px solid var(--rule)">
-                {% if forloop.counter == 1 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">2019</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Año de fundación</div>
-                {% elif forloop.counter == 2 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">200+</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Equipos disponibles</div>
-                {% elif forloop.counter == 3 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">500+</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Clientes activos</div>
-                {% else %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--or);line-height:1">4.8★</div><div style="font-size:.75rem;color:rgba(255,255,255,.3);margin-top:.3rem">Calificación promedio</div>{% endif %}
+        <div class="row g-3">
+            <div class="col-6">
+                <div class="about-stat" data-tilt data-tilt-max="8" data-tilt-speed="300">
+                    <div class="about-stat-num">2019</div>
+                    <div class="about-stat-label">Año de fundación</div>
+                </div>
             </div>
-            {% endfor %}
+            <div class="col-6">
+                <div class="about-stat" data-tilt data-tilt-max="8" data-tilt-speed="300" style="transition-delay:.1s">
+                    <div class="about-stat-num">200+</div>
+                    <div class="about-stat-label">Equipos disponibles</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="about-stat" data-tilt data-tilt-max="8" data-tilt-speed="300" style="transition-delay:.2s">
+                    <div class="about-stat-num">500+</div>
+                    <div class="about-stat-label">Clientes activos</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="about-stat" data-tilt data-tilt-max="8" data-tilt-speed="300" style="transition-delay:.3s">
+                    <div class="about-stat-num">4.8★</div>
+                    <div class="about-stat-label">Calificación promedio</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+</div>
+</section>
 
-<div class="rv">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem;display:flex;align-items:center;gap:.45rem"><span style="width:14px;height:2px;background:var(--or);display:inline-block"></span>Valores</div>
-    <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:1.5rem">Lo que nos guía</h2>
+<!-- VALUES -->
+<section class="values-sec">
+<div class="container">
+    <div class="rv text-center mb-4">
+        <div class="label-sm justify-content-center">Valores</div>
+        <h2 class="title-lg">Lo que nos guía</h2>
+    </div>
     <div class="row g-3">
-        {% for v in "1234"|make_list %}
-        <div class="col-sm-6 col-lg-3">
-            <div class="card-pr p-3 h-100" style="border-left:3px solid var(--or)">
-                {% if forloop.counter == 1 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Transparencia</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Precios claros, sin cargos ocultos ni sorpresas.</div>
-                {% elif forloop.counter == 2 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Calidad</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Equipos revisados y en perfecto estado antes de cada alquiler.</div>
-                {% elif forloop.counter == 3 %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Servicio</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Atención excepcional y soporte técnico 24/7.</div>
-                {% else %}<div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;margin-bottom:.4rem">Puntualidad</div><div style="font-size:.8rem;color:var(--muted);line-height:1.55">Entrega y recogida en el tiempo acordado, garantizado.</div>{% endif %}
+        <div class="col-sm-6 col-lg-3 rv" style="transition-delay:0ms">
+            <div class="value-card">
+                <div class="value-icon"><i class="bi bi-eye"></i></div>
+                <div class="value-title">Transparencia</div>
+                <div class="value-txt">Precios claros, sin cargos ocultos ni sorpresas.</div>
             </div>
         </div>
-        {% endfor %}
+        <div class="col-sm-6 col-lg-3 rv" style="transition-delay:100ms">
+            <div class="value-card">
+                <div class="value-icon"><i class="bi bi-shield-check"></i></div>
+                <div class="value-title">Calidad</div>
+                <div class="value-txt">Equipos revisados y en perfecto estado antes de cada alquiler.</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 rv" style="transition-delay:200ms">
+            <div class="value-card">
+                <div class="value-icon"><i class="bi bi-headset"></i></div>
+                <div class="value-title">Servicio</div>
+                <div class="value-txt">Atención excepcional y soporte técnico 24/7.</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 rv" style="transition-delay:300ms">
+            <div class="value-card">
+                <div class="value-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="value-title">Puntualidad</div>
+                <div class="value-txt">Entrega y recogida en el tiempo acordado, garantizado.</div>
+            </div>
+        </div>
     </div>
 </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline-sec">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="rv text-center mb-5">
+                <div class="label-sm justify-content-center" style="color:var(--or)">Historia</div>
+                <h2 class="title-lg" style="color:#fff">Nuestro camino</h2>
+            </div>
+            <div class="timeline-item rv" style="transition-delay:0ms">
+                <div class="tl-dot">19</div>
+                <div class="tl-content">
+                    <div class="tl-year">2019</div>
+                    <div class="tl-title">Fundación</div>
+                    <div class="tl-txt">Nacemos en Bogotá con 20 equipos y la visión de digitalizar el alquiler de maquinaria en Colombia.</div>
+                </div>
+            </div>
+            <div class="timeline-item rv" style="transition-delay:100ms">
+                <div class="tl-dot">21</div>
+                <div class="tl-content">
+                    <div class="tl-year">2021</div>
+                    <div class="tl-title">Plataforma digital</div>
+                    <div class="tl-txt">Lanzamos nuestra plataforma online con reservas automáticas y confirmación instantánea.</div>
+                </div>
+            </div>
+            <div class="timeline-item rv" style="transition-delay:200ms">
+                <div class="tl-dot">23</div>
+                <div class="tl-content">
+                    <div class="tl-year">2023</div>
+                    <div class="tl-title">500 clientes activos</div>
+                    <div class="tl-txt">Superamos los 500 clientes activos y 200 equipos en catálogo. Calificación 4.8/5 en satisfacción.</div>
+                </div>
+            </div>
+            <div class="timeline-item rv" style="transition-delay:300ms">
+                <div class="tl-dot">25</div>
+                <div class="tl-content">
+                    <div class="tl-year">2025</div>
+                    <div class="tl-title">Expansión nacional</div>
+                    <div class="tl-txt">Expandimos operaciones a Medellín, Cali y Barranquilla. API pública para integraciones empresariales.</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+</section>
+
+<!-- CTA -->
+<section class="about-cta">
+    <div class="container" style="position:relative">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;text-transform:uppercase;color:#fff;margin-bottom:.65rem">¿Listo para empezar?</h2>
+        <p style="color:rgba(255,255,255,.65);font-size:.9rem;margin-bottom:1.75rem">Accede a más de 200 equipos disponibles en toda Colombia.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'equipos:lista' %}" style="background:#fff;color:var(--or);font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.85rem 2rem;border-radius:4px;display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.15)" onmouseenter="this.style.background='#fff3ec'" onmouseleave="this.style.background='#fff'">
+                <i class="bi bi-search"></i>Ver Equipos
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'usuarios:registro' %}" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5);font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.85rem 2rem;border-radius:4px;display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;transition:all .2s" onmouseenter="this.style.borderColor='#fff'" onmouseleave="this.style.borderColor='rgba(255,255,255,.5)'">
+                <i class="bi bi-person-plus"></i>Crear Cuenta Gratis
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
 {% endblock %}

@@ -1,40 +1,113 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{% trans "Registrarse" %}{% endblock %}
-{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">{% trans "Registro" %}</li></ol></div></nav>{% endblock %}
+{% block breadcrumb %}
+<nav class="bc"><div class="container"><ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+<li class="breadcrumb-item active">{% trans "Registro" %}</li>
+</ol></div></nav>
+{% endblock %}
+{% block extra_css %}
+<style>
+.reg-section{background:var(--lt);position:relative;overflow:hidden;padding:3rem 0}
+.reg-section::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(255,92,0,.05),transparent 70%);pointer-events:none}
+
+.reg-card{background:#fff;border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.05);overflow:hidden;animation:reg-in .7s cubic-bezier(.16,1,.3,1) both}
+@keyframes reg-in{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+.reg-header{background:var(--blk);padding:1.75rem 2rem;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.reg-header::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.04) 1px,transparent 1px);background-size:28px 28px}
+.reg-header::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent)}
+.reg-header-inner{position:relative;display:flex;align-items:center;gap:1rem}
+.reg-icon{width:42px;height:42px;background:var(--or);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;box-shadow:0 0 20px rgba(255,92,0,.45);flex-shrink:0}
+.reg-header h2{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;text-transform:uppercase;color:#fff;margin:0;letter-spacing:-.01em}
+.reg-header p{color:rgba(255,255,255,.35);font-size:.8rem;margin:.2rem 0 0}
+
+.reg-body{padding:2rem}
+
+.f-group{margin-bottom:1.15rem}
+.f-label-rg{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;display:block}
+.f-input-rg{border:1.5px solid var(--border);border-radius:6px;padding:.6rem .9rem;font-size:.85rem;font-family:'Barlow',sans-serif;background:#fff;width:100%;transition:all .2s;color:var(--txt)}
+.f-input-rg:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(255,92,0,.1);outline:none}
+.f-input-rg.is-invalid{border-color:#dc2626}
+select.f-input-rg{cursor:pointer}
+.f-error{font-size:.73rem;color:#dc2626;margin-top:.25rem;display:flex;align-items:center;gap:.3rem}
+.f-hint{font-size:.7rem;color:var(--muted);margin-top:.2rem}
+
+.submit-reg{background:var(--or);color:#fff;border:none;border-radius:6px;padding:.85rem 2rem;font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.45rem;box-shadow:0 4px 20px rgba(255,92,0,.35)}
+.submit-reg:hover{background:var(--or-dark);box-shadow:0 6px 32px rgba(255,92,0,.5);transform:translateY(-1px)}
+
+.reg-footer{text-align:center;padding:1.25rem 2rem;border-top:1px solid var(--lt2);font-size:.82rem;color:var(--muted)}
+.reg-footer a{color:var(--or);font-weight:600}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="pg-head"><div class="container pg-head-inner"><div class="pg-head-label">Nuevo usuario</div><h1>Crear Cuenta</h1><p>Únete a PowerRent y accede a todos los equipos</p></div></div>
-<div class="container py-4">
+<div class="reg-section">
+<div class="container">
 <div class="row justify-content-center">
 <div class="col-lg-7">
-<div class="card-pr p-4 rv">
-    <form method="post" novalidate>
-        {% csrf_token %}
-        <div class="row g-3">
-        {% for field in form %}
-        <div class="col-{% if 'password' in field.html_name or field.html_name == 'email' %}12{% else %}md-6 col-12{% endif %}">
-            <label class="f-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
-            {% if field.field.widget.input_type == 'select' %}
-            <select name="{{ field.html_name }}" class="f-input {% if field.errors %}is-invalid{% endif %}">
-                {% for val, lbl in field.field.choices %}<option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ lbl }}</option>{% endfor %}
-            </select>
-            {% else %}
-            <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
-                   value="{% if field.field.widget.input_type != 'password' %}{{ field.value|default:'' }}{% endif %}"
-                   class="f-input {% if field.errors %}is-invalid{% endif %}"
-                   placeholder="{{ field.label }}" {% if field.field.required %}required{% endif %}>
+
+<div class="reg-card">
+    <div class="reg-header">
+        <div class="reg-header-inner">
+            <div class="reg-icon"><i class="bi bi-person-plus-fill"></i></div>
+            <div>
+                <h2>Crear Cuenta</h2>
+                <p>Únete a PowerRent y accede a todos los equipos</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="reg-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+            {% for field in form %}
+            <div class="col-{% if 'password' in field.html_name or field.html_name == 'email' %}12{% else %}md-6 col-12{% endif %}">
+                <div class="f-group" style="margin-bottom:0">
+                    <label class="f-label-rg">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    {% if field.field.widget.input_type == 'select' %}
+                    <select name="{{ field.html_name }}" class="f-input-rg {% if field.errors %}is-invalid{% endif %}">
+                        {% for val, lbl in field.field.choices %}
+                        <option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                    <input type="{{ field.field.widget.input_type }}"
+                           name="{{ field.html_name }}"
+                           value="{% if field.field.widget.input_type != 'password' %}{{ field.value|default:'' }}{% endif %}"
+                           class="f-input-rg {% if field.errors %}is-invalid{% endif %}"
+                           placeholder="{{ field.label }}"
+                           {% if field.field.required %}required{% endif %}>
+                    {% endif %}
+                    {% if field.errors %}<div class="f-error"><i class="bi bi-exclamation-circle"></i>{{ field.errors|join:", " }}</div>{% endif %}
+                    {% if field.help_text %}<div class="f-hint">{{ field.help_text }}</div>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="f-error mt-3"><i class="bi bi-exclamation-circle"></i>{{ form.non_field_errors|join:", " }}</div>
             {% endif %}
-            {% if field.errors %}<div class="f-error">{{ field.errors|join:", " }}</div>{% endif %}
-            {% if field.help_text %}<div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">{{ field.help_text }}</div>{% endif %}
-        </div>
-        {% endfor %}
-        </div>
-        {% if form.non_field_errors %}<div class="f-error mt-3">{{ form.non_field_errors|join:", " }}</div>{% endif %}
-        <div class="d-flex gap-3 align-items-center mt-4 flex-wrap">
-            <button type="submit" class="btn-pr btn-or btn-lg-pr">Crear Cuenta</button>
-            <a href="{% url 'usuarios:login' %}" style="font-size:.82rem;color:var(--muted)">¿Ya tienes cuenta? <span style="color:var(--or);font-weight:600">Iniciar sesión</span></a>
-        </div>
-    </form>
+
+            <div class="d-flex gap-3 align-items-center mt-4 flex-wrap">
+                <button type="submit" class="submit-reg">
+                    <i class="bi bi-person-check"></i>Crear Cuenta
+                </button>
+                <a href="{% url 'usuarios:login' %}" style="font-size:.82rem;color:var(--muted)">
+                    ¿Ya tienes cuenta? <span style="color:var(--or);font-weight:600">Iniciar sesión</span>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="reg-footer">
+        Al registrarte aceptas nuestros <a href="#">Términos de uso</a> y <a href="#">Política de privacidad</a>
+    </div>
+</div>
+
 </div>
 </div>
 </div>

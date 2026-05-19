@@ -1,54 +1,128 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{% trans "Iniciar Sesión" %}{% endblock %}
+{% block extra_css %}
+<style>
+.auth-page{min-height:calc(100vh - 120px);display:flex;align-items:center;background:var(--lt);position:relative;overflow:hidden}
+.auth-page::before{content:'';position:absolute;top:-200px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(255,92,0,.06) 0%,transparent 70%);pointer-events:none}
+.auth-page::after{content:'';position:absolute;bottom:-300px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(255,92,0,.04) 0%,transparent 70%);pointer-events:none}
+
+.auth-card{display:grid;grid-template-columns:1fr 1fr;border-radius:12px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.06);min-height:520px;animation:auth-in .7s cubic-bezier(.16,1,.3,1) both}
+@keyframes auth-in{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+
+/* ── LEFT PANEL (DARK) ── */
+.auth-l{background:var(--blk);padding:2.75rem 2.25rem;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--rule);position:relative;overflow:hidden}
+.auth-l-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.04) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+.auth-l-glow{position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,92,0,.15),transparent 70%);pointer-events:none;animation:lbg 4s ease infinite}
+@keyframes lbg{0%,100%{opacity:.5}50%{opacity:1}}
+.auth-brand{position:relative;font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;text-transform:uppercase;color:var(--or);display:flex;align-items:center;gap:.55rem;letter-spacing:.02em}
+.auth-brand-icon{width:38px;height:38px;background:var(--or);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;box-shadow:0 0 20px rgba(255,92,0,.45)}
+.auth-tagline{position:relative;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-top:.35rem;margin-bottom:2.25rem}
+.auth-features{position:relative;display:flex;flex-direction:column;gap:.9rem}
+.auth-feat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:.7rem .9rem;font-size:.78rem;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:.6rem;transition:all .2s}
+.auth-feat:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.12)}
+.auth-feat i{font-size:.85rem;flex-shrink:0}
+.auth-feat-or{color:var(--or)}
+.auth-feat-green{color:#10b981}
+.auth-feat-blue{color:#3b82f6}
+.auth-bottom{position:relative;margin-top:auto}
+.auth-rating{font-size:.75rem;color:rgba(255,255,255,.2);font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em}
+.auth-stars{color:#f59e0b;font-size:.7rem;margin-bottom:.25rem}
+
+/* ── RIGHT PANEL (FORM) ── */
+.auth-r{background:#fff;padding:2.75rem 2.25rem;display:flex;flex-direction:column;justify-content:center}
+.form-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.form-eyebrow::before{content:'';width:12px;height:2px;background:var(--or)}
+.form-title{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;color:var(--txt);margin-bottom:.25rem;line-height:1}
+.form-sub{color:var(--muted);font-size:.82rem;margin-bottom:2rem}
+.f-group{margin-bottom:1.1rem;position:relative}
+.f-label-fl{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;display:block}
+.f-input-auth{border:1.5px solid var(--border);border-radius:6px;padding:.65rem 1rem;font-size:.88rem;font-family:'Barlow',sans-serif;background:#fff;width:100%;transition:all .2s;color:var(--txt)}
+.f-input-auth:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(255,92,0,.1);outline:none}
+.f-input-auth.is-invalid{border-color:#dc2626}
+.f-error{font-size:.73rem;color:#dc2626;margin-top:.25rem;display:flex;align-items:center;gap:.3rem}
+.submit-btn{background:var(--or);color:#fff;border:none;border-radius:6px;padding:.8rem 1.5rem;width:100%;font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.45rem;box-shadow:0 4px 20px rgba(255,92,0,.35);margin-top:.5rem}
+.submit-btn:hover{background:var(--or-dark);box-shadow:0 6px 32px rgba(255,92,0,.5);transform:translateY(-1px)}
+.submit-btn:active{transform:translateY(0)}
+.auth-alt{text-align:center;font-size:.82rem;color:var(--muted);margin-top:1.5rem}
+.auth-alt a{color:var(--or);font-weight:600;transition:color .15s}
+.auth-alt a:hover{color:var(--or-dark)}
+.divider{display:flex;align-items:center;gap:.75rem;margin:1.25rem 0;color:var(--muted);font-size:.75rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+@media(max-width:640px){.auth-card{grid-template-columns:1fr}.auth-l{display:none}}
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="min-height:calc(100vh - 120px);display:flex;align-items:center;background:var(--lt)">
+<div class="auth-page">
 <div class="container py-5">
 <div class="row justify-content-center">
-<div class="col-lg-9 col-xl-7">
-<div class="card-pr overflow-hidden rv" style="display:grid;grid-template-columns:1fr 1fr;min-height:480px">
-    <!-- Left dark panel -->
-    <div style="background:var(--blk);padding:2.5rem 2rem;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--rule);position:relative;overflow:hidden">
-        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,92,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,0,.04) 1px,transparent 1px);background-size:35px 35px;pointer-events:none"></div>
-        <div style="position:relative">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--or);text-transform:uppercase;letter-spacing:.02em;margin-bottom:.4rem">PowerRent</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:2rem">Alquiler Profesional</div>
-            <div style="display:flex;flex-direction:column;gap:.9rem">
-                {% for t in "123"|make_list %}
-                <div style="background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:2px;padding:.55rem .75rem;font-size:.75rem;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:.5rem">
-                    {% if forloop.counter == 1 %}<i class="bi bi-lightning-charge" style="color:var(--or)"></i>Reserva instantánea
-                    {% elif forloop.counter == 2 %}<i class="bi bi-shield-check" style="color:#10b981"></i>Equipos garantizados
-                    {% else %}<i class="bi bi-headset" style="color:#3b82f6"></i>Soporte 24/7{% endif %}
-                </div>
-                {% endfor %}
+<div class="col-lg-9 col-xl-8">
+
+<div class="auth-card">
+    <!-- LEFT -->
+    <div class="auth-l">
+        <div class="auth-l-grid"></div>
+        <div class="auth-l-glow"></div>
+        <div>
+            <div class="auth-brand">
+                <span class="auth-brand-icon"><i class="bi bi-lightning-charge-fill"></i></span>PowerRent
+            </div>
+            <div class="auth-tagline">Alquiler Profesional de Equipos</div>
+            <div class="auth-features">
+                <div class="auth-feat"><i class="bi bi-lightning-charge auth-feat-or"></i>Reserva instantánea — confirmación automática</div>
+                <div class="auth-feat"><i class="bi bi-shield-check auth-feat-green"></i>Equipos garantizados y revisados</div>
+                <div class="auth-feat"><i class="bi bi-headset auth-feat-blue"></i>Soporte técnico disponible 24/7</div>
+                <div class="auth-feat"><i class="bi bi-truck auth-feat-or"></i>Entrega y recogida a domicilio</div>
             </div>
         </div>
+        <div class="auth-bottom">
+            <div class="auth-stars">★★★★★</div>
+            <div class="auth-rating">4.8/5 — Más de 500 clientes activos en Colombia</div>
+        </div>
     </div>
-    <!-- Right form -->
-    <div style="padding:2.5rem 2rem;display:flex;flex-direction:column;justify-content:center">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:.5rem">Acceso</div>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:.25rem">Bienvenido</h2>
-        <p style="color:var(--muted);font-size:.82rem;margin-bottom:1.75rem">Ingresa a tu cuenta</p>
+
+    <!-- RIGHT -->
+    <div class="auth-r">
+        <div class="form-eyebrow">Acceso seguro</div>
+        <div class="form-title">Bienvenido</div>
+        <div class="form-sub">Ingresa a tu cuenta PowerRent</div>
+
         <form method="post" novalidate>
             {% csrf_token %}
             {% for field in form %}
-            <div class="mb-3">
-                <label class="f-label">{{ field.label }}</label>
-                <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
+            <div class="f-group">
+                <label class="f-label-fl">{{ field.label }}</label>
+                <input type="{{ field.field.widget.input_type }}"
+                       name="{{ field.html_name }}"
                        value="{{ field.value|default:'' }}"
-                       class="f-input {% if field.errors %}is-invalid{% endif %}"
-                       placeholder="{{ field.label }}" {% if field.field.required %}required{% endif %}>
-                {% if field.errors %}<div class="f-error">{{ field.errors|join:", " }}</div>{% endif %}
+                       class="f-input-auth {% if field.errors %}is-invalid{% endif %}"
+                       placeholder="{{ field.label }}"
+                       {% if field.field.required %}required{% endif %}>
+                {% if field.errors %}
+                <div class="f-error"><i class="bi bi-exclamation-circle"></i>{{ field.errors|join:", " }}</div>
+                {% endif %}
             </div>
             {% endfor %}
-            {% if form.non_field_errors %}<div class="f-error mb-3">{{ form.non_field_errors|join:", " }}</div>{% endif %}
-            <button type="submit" class="btn-pr btn-or w-100 justify-content-center mt-1">{% trans "Iniciar Sesión" %}</button>
+
+            {% if form.non_field_errors %}
+            <div class="f-error mb-3"><i class="bi bi-exclamation-circle"></i>{{ form.non_field_errors|join:", " }}</div>
+            {% endif %}
+
+            <button type="submit" class="submit-btn">
+                <i class="bi bi-box-arrow-in-right"></i>{% trans "Iniciar Sesión" %}
+            </button>
         </form>
-        <p style="text-align:center;font-size:.8rem;color:var(--muted);margin-top:1.25rem">¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}" style="color:var(--or);font-weight:600">{% trans "Registrarse" %}</a></p>
+
+        <div class="auth-alt">
+            ¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}">{% trans "Registrarse gratis" %}</a>
+        </div>
     </div>
+</div>
+
 </div>
 </div>
 </div>
 </div>
 {% endblock %}
-{% block extra_css %}<style>@media(max-width:600px){.card-pr{grid-template-columns:1fr!important}.card-pr>div:first-child{display:none!important}}</style>{% endblock %}

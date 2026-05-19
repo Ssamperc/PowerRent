@@ -1,54 +1,151 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{% trans "Mis Reservas" %}{% endblock %}
-{% block breadcrumb %}<nav class="bc"><div class="container"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li><li class="breadcrumb-item active">{% trans "Mis Reservas" %}</li></ol></div></nav>{% endblock %}
+{% block breadcrumb %}
+<nav class="bc"><div class="container"><ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+<li class="breadcrumb-item active">{% trans "Mis Reservas" %}</li>
+</ol></div></nav>
+{% endblock %}
+{% block extra_css %}
+<style>
+/* ── RESERVATION CARDS ── */
+.reserva-card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:all .22s;position:relative}
+.reserva-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.reserva-card.pendiente::before{background:#f59e0b}
+.reserva-card.confirmada::before{background:#3b82f6}
+.reserva-card.en_curso::before{background:#10b981}
+.reserva-card.completada::before{background:#6b7280}
+.reserva-card.cancelada::before{background:#ef4444}
+.reserva-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px)}
+
+.rc-header{padding:1rem 1.1rem .75rem;border-bottom:1px solid var(--lt2);display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.rc-num{font-family:monospace;font-size:.75rem;color:var(--muted);margin-bottom:.25rem}
+.rc-equipo{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:800;text-transform:uppercase;letter-spacing:.01em;color:var(--txt)}
+.rc-cat{font-size:.72rem;color:var(--muted)}
+.rc-body{padding:.85rem 1.1rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center}
+.rc-info-group{display:flex;flex-direction:column;gap:.1rem}
+.rc-info-label{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rc-info-val{font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:700;color:var(--txt)}
+.rc-info-val.price{color:var(--or);font-size:1.1rem}
+.rc-footer{padding:.75rem 1.1rem;border-top:1px solid var(--lt2);background:var(--lt);display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.rc-actions{display:flex;gap:.5rem}
+
+/* BADGE STATUS */
+.b-pendiente{background:#fef3c7;color:#92400e}
+.b-confirmada{background:#dbeafe;color:#1e40af}
+.b-en_curso{background:#d1fae5;color:#065f46}
+.b-completada{background:#e5e7eb;color:#374151}
+.b-cancelada{background:#fee2e2;color:#991b1b}
+
+/* Empty */
+.empty-reservas{text-align:center;padding:5rem 2rem}
+.empty-icon{font-size:3.5rem;color:var(--border);margin-bottom:1.25rem}
+.empty-title{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;text-transform:uppercase;color:var(--txt);margin-bottom:.5rem}
+.empty-sub{color:var(--muted);font-size:.85rem;margin-bottom:1.75rem}
+
+/* Tabs */
+.status-tabs{display:flex;gap:.25rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.status-tab{font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.4rem .85rem;border-radius:4px;border:1.5px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;transition:all .15s;text-decoration:none}
+.status-tab:hover{border-color:var(--or);color:var(--or)}
+.status-tab.active{background:var(--or);border-color:var(--or);color:#fff}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="pg-head"><div class="container pg-head-inner d-flex justify-content-between align-items-end flex-wrap gap-3">
-    <div><div class="pg-head-label">{% trans "Mi cuenta" %}</div><h1>{% trans "Mis Reservas" %}</h1></div>
-    <a href="{% url 'equipos:lista' %}" class="btn-pr btn-or btn-sm-pr"><i class="bi bi-plus"></i>Nueva Reserva</a>
-</div></div>
+<div class="pg-head">
+    <div class="container pg-head-inner d-flex justify-content-between align-items-end flex-wrap gap-3">
+        <div>
+            <div class="pg-head-label">{% trans "Mi cuenta" %}</div>
+            <h1>{% trans "Mis Reservas" %}</h1>
+        </div>
+        <a href="{% url 'equipos:lista' %}" class="btn-pr btn-or btn-sm-pr">
+            <i class="bi bi-plus"></i>Nueva Reserva
+        </a>
+    </div>
+</div>
 
 <div class="container py-4">
+
 {% if reservas %}
-<div class="card-pr overflow-hidden rv">
-    <table class="tbl">
-        <thead><tr>
-            <th>N° Reserva</th><th>Equipo</th><th>Fechas</th><th>Días</th><th>Total</th><th>Estado</th><th></th>
-        </tr></thead>
-        <tbody>
-        {% for r in reservas %}
-        <tr>
-            <td><span class="mono" style="font-size:.78rem;color:var(--muted)">{{ r.numero_reserva }}</span></td>
-            <td><div style="font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:700;text-transform:uppercase">{{ r.equipo.nombre }}</div><div style="font-size:.72rem;color:var(--muted)">{{ r.equipo.categoria.nombre }}</div></td>
-            <td style="font-size:.78rem"><div>{{ r.fecha_inicio|date:"d/m/Y" }}</div><div style="color:var(--muted)">al {{ r.fecha_fin|date:"d/m/Y" }}</div></td>
-            <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700">{{ r.dias_alquiler }}</td>
-            <td><span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;color:var(--or)">$\{{ r.costo_total|floatformat:0 }}</span></td>
-            <td><span class="b {% if r.estado == 'pendiente' %}b-yellow{% elif r.estado == 'confirmada' %}b-blue{% elif r.estado == 'en_curso' %}b-green{% elif r.estado == 'completada' %}b-gray{% else %}b-red{% endif %}">{{ r.get_estado_display }}</span></td>
-            <td>
-                <div class="d-flex gap-1">
-                    <a href="{% url 'reservas:detalle' r.pk %}" class="btn-pr btn-lt btn-sm-pr">Ver</a>
-                    {% if r.estado == 'pendiente' %}<a href="{% url 'pagos:pagar' r.pk %}" class="btn-pr btn-or btn-sm-pr">Pagar</a>{% endif %}
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+
+<!-- STATUS TABS -->
+<div class="status-tabs rv">
+    <a href="?" class="status-tab {% if not request.GET.estado %}active{% endif %}">Todas ({{ reservas|length }})</a>
 </div>
+
+<div class="d-flex flex-column gap-3">
+{% for r in reservas %}
+<div class="reserva-card {{ r.estado }} rv" style="transition-delay:{{ forloop.counter0 }}0ms">
+    <div class="rc-header">
+        <div>
+            <div class="rc-num">{{ r.numero_reserva }}</div>
+            <div class="rc-equipo">{{ r.equipo.nombre }}</div>
+            <div class="rc-cat">{{ r.equipo.categoria.nombre }}</div>
+        </div>
+        <span class="b b-{{ r.estado }}">{{ r.get_estado_display }}</span>
+    </div>
+    <div class="rc-body">
+        <div class="rc-info-group">
+            <span class="rc-info-label">Inicio</span>
+            <span class="rc-info-val">{{ r.fecha_inicio|date:"d/m/Y" }}</span>
+        </div>
+        <div class="rc-info-group">
+            <span class="rc-info-label">Fin</span>
+            <span class="rc-info-val">{{ r.fecha_fin|date:"d/m/Y" }}</span>
+        </div>
+        <div class="rc-info-group">
+            <span class="rc-info-label">Días</span>
+            <span class="rc-info-val">{{ r.dias_alquiler }}</span>
+        </div>
+        <div class="rc-info-group" style="margin-left:auto">
+            <span class="rc-info-label">Total</span>
+            <span class="rc-info-val price">${{ r.costo_total|floatformat:0 }}</span>
+        </div>
+    </div>
+    <div class="rc-footer">
+        <div style="font-size:.72rem;color:var(--muted)">
+            <i class="bi bi-calendar3 me-1"></i>Creada {{ r.created_at|date:"d/m/Y" }}
+        </div>
+        <div class="rc-actions">
+            <a href="{% url 'reservas:detalle' r.pk %}" class="btn-pr btn-lt btn-sm-pr">
+                <i class="bi bi-eye"></i>Ver detalle
+            </a>
+            {% if r.estado == 'pendiente' %}
+            <a href="{% url 'pagos:pagar' r.pk %}" class="btn-pr btn-or btn-sm-pr">
+                <i class="bi bi-credit-card"></i>Pagar
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
 {% if is_paginated %}
-<nav class="mt-3 d-flex justify-content-center"><ul class="pagination pg-nav">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
-    <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
-</ul></nav>
+<nav class="mt-4 d-flex justify-content-center">
+    <ul class="pagination pg-nav">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+        {% endif %}
+    </ul>
+</nav>
 {% endif %}
+
 {% else %}
-<div class="text-center py-5 rv">
-    <i class="bi bi-calendar-x" style="font-size:2.5rem;color:var(--muted)"></i>
-    <h5 style="font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.02em;margin-top:1rem">No tienes reservas aún</h5>
-    <p style="color:var(--muted);font-size:.85rem">Explora nuestros equipos y haz tu primera reserva</p>
-    <a href="{% url 'equipos:lista' %}" class="btn-pr btn-or">Ver Equipos</a>
+<div class="empty-reservas rv">
+    <div class="empty-icon"><i class="bi bi-calendar-x"></i></div>
+    <div class="empty-title">No tienes reservas aún</div>
+    <div class="empty-sub">Explora nuestros equipos y haz tu primera reserva fácilmente</div>
+    <a href="{% url 'equipos:lista' %}" class="btn-pr btn-or btn-lg-pr">
+        <i class="bi bi-search"></i>Ver Equipos Disponibles
+    </a>
 </div>
 {% endif %}
+
 </div>
 {% endblock %}
